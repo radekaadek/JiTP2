@@ -2,7 +2,7 @@
 #include <Simple_window.h>
 
 // Compile with:
-// g++ -o example main.cpp $(find graph_lib/ -name "*.cpp") -I graph_lib/ -lfltk -lfltk_images -lX11 -lXext -O4 -Wall
+// g++ -o example main.cpp $(find graph_lib/ -name "*.cpp") -I graph_lib/ -lfltk -lfltk_images -lX11 -lXext -O4 && ./example
 
 int main()
 {
@@ -16,5 +16,6 @@ int main()
     wnd.wait_for_button();
     poly.add(Point(200, 100));
     wnd.wait_for_button();
+    sort(poly);
     return 0;
 }
