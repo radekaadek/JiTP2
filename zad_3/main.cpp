@@ -16,6 +16,5 @@ int main()
     wnd.wait_for_button();
     poly.add(Point(200, 100));
     wnd.wait_for_button();
-    sort(poly);
     return 0;
 }
