@@ -2,7 +2,7 @@
 #include <Simple_window.h>
 
 // Compile with:
-// g++ -o example main.cpp $(find graph_lib/ -name "*.cpp") -I graph_lib/ -lfltk -lfltk_images -lX11 -lXext -O4 && ./example
+// g++ -o example.out main.cpp $(find graph_lib/ -name "*.cpp") -I graph_lib/ -lfltk -lfltk_images -lX11 -lXext -O4 && ./example.out
 
 int main()
 {
