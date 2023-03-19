@@ -1,8 +1,9 @@
 #include <Graph.h>
 #include <Simple_window.h>
 
+
 // Compile with:
-// g++ -o example.out main.cpp $(find graph_lib/ -name "*.cpp") -I graph_lib/ -lfltk -lfltk_images -lX11 -lXext -O4 && ./example.out
+// g++ -o example.out main.cpp $(find graph_lib/ -name "*.cpp") $(find source_files/ -name "*.cpp") -I graph_lib/ -I header_files/ -lfltk -lfltk_images -lX11 -lXext -O4 && ./example.out
 
 int main()
 {
