@@ -5,7 +5,6 @@
 #include "Simple_window.h"
 using namespace std;
 
-//  g++ -o example.out figure_test.cpp $(find graph_lib/ -name "*.cpp") $(find source_files/ -name "*.cpp") -I graph_lib/ -I header_files/ -lfltk -lfltk_images -lX11 -lXext -Wall -Wpedantic -Wextra -O4 && ./example.out
 
 int main()
 {
