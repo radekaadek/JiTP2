@@ -1,9 +1,4 @@
 #include "figure.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
 #include <Graph.h>
 #include <Simple_window.h>
 using namespace std;

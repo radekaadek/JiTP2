@@ -100,5 +100,4 @@ std::pair<FPoint, FPoint> get_transformation(
 
 figure* get_figure(std::istream& is);
 pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf);
-// window title
 std::string window_title();

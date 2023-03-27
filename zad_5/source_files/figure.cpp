@@ -89,14 +89,10 @@ pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf) {
     FPoint max = vf[0]->bbox().second;
     for (size_t i = 1; i < vf.size(); ++i) {
         auto bb = vf[i]->bbox();
-        if (bb.first.x < min.x)
-            min.x = bb.first.x;
-        if (bb.first.y < min.y)
-            min.y = bb.first.y;
-        if (bb.second.x > max.x)
-            max.x = bb.second.x;
-        if (bb.second.y > max.y)
-            max.y = bb.second.y;
+        min.x = std::min(min.x, bb.first.x);
+        min.y = std::min(min.y, bb.first.y);
+        max.x = std::max(max.x, bb.second.x);
+        max.y = std::max(max.y, bb.second.y);
     }
     return { min, max };
 }
@@ -119,14 +115,10 @@ std::pair<FPoint, FPoint> figure::bbox() const {
     FPoint min = fdef[0];
     FPoint max = fdef[0];
     for (int i = 1; i < (int)fdef.size(); ++i) {
-        if (fdef[i].x < min.x)
-            min.x = fdef[i].x;
-        if (fdef[i].y < min.y)
-            min.y = fdef[i].y;
-        if (fdef[i].x > max.x)
-            max.x = fdef[i].x;
-        if (fdef[i].y > max.y)
-            max.y = fdef[i].y;
+        min.x = std::min(min.x, fdef[i].x);
+        min.y = std::min(min.y, fdef[i].y);
+        max.x = std::max(max.x, fdef[i].x);
+        max.y = std::max(max.y, fdef[i].y);
     }
     return { min, max };
 }
@@ -161,14 +153,14 @@ Graph_lib::Shape* Line::get_shape() const {
 }
 
 std::pair<FPoint, FPoint> get_transformation(
-    const std::pair<FPoint, FPoint>& obj_bbox,
-    const std::pair<FPoint, FPoint>& win_bbox) {
-    FPoint scale;
-    scale.x = (win_bbox.second.x - win_bbox.first.x) / (obj_bbox.second.x - obj_bbox.first.x);
-    scale.y = (win_bbox.second.y - win_bbox.first.y) / (obj_bbox.second.y - obj_bbox.first.y);
-    FPoint translation;
-    translation.x = win_bbox.first.x - obj_bbox.first.x * scale.x;
-    translation.y = win_bbox.first.y - obj_bbox.first.y * scale.y;
+        const std::pair<FPoint, FPoint>& obj_bbox,
+        const std::pair<FPoint, FPoint>& disp_bbox) {
+    FPoint scale = FPoint((disp_bbox.second.x - disp_bbox.first.x) / (obj_bbox.second.x - obj_bbox.first.x),
+        (disp_bbox.second.y - disp_bbox.first.y) / (obj_bbox.second.y - obj_bbox.first.y));
+    scale.x = scale.y = std::min(scale.x, scale.y);
+    scale.y = -scale.y;
+    FPoint translation = FPoint((disp_bbox.first.x + disp_bbox.second.x) / 2 - (obj_bbox.first.x + obj_bbox.second.x) / 2 * scale.x,
+        (disp_bbox.first.y + disp_bbox.second.y) / 2 - (obj_bbox.first.y + obj_bbox.second.y) / 2 * scale.y);
     return { scale, translation };
 }
 
