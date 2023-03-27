@@ -87,7 +87,7 @@ figure* get_figure(std::istream& is) {
 pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf) {
     FPoint min = vf[0]->bbox().first;
     FPoint max = vf[0]->bbox().second;
-    for (int i = 1; i < (int)vf.size(); ++i) {
+    for (size_t i = 1; i < vf.size(); ++i) {
         auto bb = vf[i]->bbox();
         if (bb.first.x < min.x)
             min.x = bb.first.x;
