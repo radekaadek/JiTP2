@@ -1,5 +1,4 @@
 #include "Simple_window.h"
-#include "Spinner.h"
 
 void cb_close(Address, Address pw)
 {
@@ -33,7 +32,8 @@ class Spinner
     int curVal = 5;
     void changeRadius(int radius_step, Graph_lib::Window &win)
     {
-        if (curVal + radius_step < 0)
+        if (curVal + radius_step < 0 ||
+            curVal + radius_step > 180)
             return;
         curVal += radius_step;
         radiusBox.put(curVal);
