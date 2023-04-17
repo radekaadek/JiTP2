@@ -30,19 +30,16 @@ class Spinner
     Circle *pCirc = nullptr;
     Graph_lib::Window *pW = nullptr;
     int curVal = 5;
-    void changeRadius(int radius_step, Graph_lib::Window &win)
+    void changeRadius(int radius_step, Graph_lib::Window &)
     {
         if (curVal + radius_step < 0 ||
             curVal + radius_step > 180)
             return;
         curVal += radius_step;
         radiusBox.put(curVal);
-        if (pCirc != nullptr)
-        {
-            pCirc->set_radius(curVal);
-            pCirc->move(-radius_step, -radius_step);
-            pW->redraw();
-        }
+        pCirc->set_radius(curVal);
+        pCirc->move(-radius_step, -radius_step);
+        pW->redraw();
     }
     static void cb_up(Address wnd, Address pSpin)
     {
