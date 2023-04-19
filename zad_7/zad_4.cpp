@@ -8,6 +8,11 @@ ostream& operator<<(ostream& os, const Point& pt)
     return os << '(' << pt.x << ',' << pt.y << ')';
 }
 
+ostream& operator<<(ostream& os, const Graph_lib::Rectangle& rect)
+{
+    return os << "Rect " << rect.point(0) << ' ' << rect.point(1);
+}
+
 class DrawingArea {
     Point top_left, bottom_right;
 public:
@@ -47,8 +52,10 @@ class rectWindow : public Graph_lib::Window
     {
         if (start.x == pt.x || start.y == pt.y)
             return;
-        if (pRect)
+        if (pRect) {
             detach(*pRect);
+            delete pRect;
+        }
         Point top_left = Point(min(start.x, pt.x), min(start.y, pt.y));
         Point bottom_right = Point(max(start.x, pt.x), max(start.y, pt.y));
         pRect = new Graph_lib::Rectangle(top_left, bottom_right);
@@ -63,6 +70,7 @@ class rectWindow : public Graph_lib::Window
         if (!canvas.point_inside(stop)) {
             drawingNow = false;
             detach(*pRect);
+            delete pRect;
         }
         else {
             drawingNow = false;
@@ -86,7 +94,7 @@ class rectWindow : public Graph_lib::Window
 
     void save()
     {
-        ofstream ofs("shapes.txt");
+        ofstream ofs("rect.txt");
         for (auto& rect : rects) {
             ofs << "Rect " << rect.first << ' ' << rect.second << endl;
         }
