@@ -84,14 +84,19 @@ class rectWindow : public Graph_lib::Window
     void stopDrawing(Point stop)
     {
         drawingNow = false;
+
+        // Draw a new rectangle confined to the canvas
         auto coords = canvas.intersect(start, stop);
         auto rect = getRect(coords.first, coords.second);
         rect->set_color(random_color()); // :)
         shapes.push_back(rect);
         attach(*rect);
+
+        // Delete the temporary rectangle
         detach(*pRect);
         delete pRect;
         pRect = nullptr;
+
         redraw();
     }
 
