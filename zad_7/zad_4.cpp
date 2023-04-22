@@ -10,8 +10,11 @@ ostream& operator<<(ostream& os, const Point& pt)
 
 ostream& operator<<(ostream& os, const Graph_lib::Rectangle& rect)
 {
-    return os << "Rect " << rect.point(0) << ' ' << rect.point(1);
+    Point tl = rect.point(0);
+    Point br = Point(rect.point(0).x + rect.width(), rect.point(0).y + rect.height());
+    return os << "Rect (" << tl << br << ")";
 }
+
 
 class DrawingArea {
     Point top_left, bottom_right;
@@ -23,6 +26,15 @@ public:
         bool y_inside = pt.y >= top_left.y && pt.y <= bottom_right.y;
         return x_inside && y_inside;
     }
+    
+    std::pair<Point, Point> intersect(Point pt1, Point pt2) const
+    {
+        int x1 = max(min(pt1.x, pt2.x), top_left.x);
+        int y1 = max(min(pt1.y, pt2.y), top_left.y);
+        int x2 = min(max(pt1.x, pt2.x), bottom_right.x);
+        int y2 = min(max(pt1.y, pt2.y), bottom_right.y);
+        return {Point(x1, y1), Point(x2, y2)};
+    }
 };
 
 class rectWindow : public Graph_lib::Window
@@ -33,7 +45,13 @@ class rectWindow : public Graph_lib::Window
     Point start;
     Graph_lib::Rectangle *pRect;
     vector<Shape *> shapes;
-    vector<std::pair<Point, Point>> rects;
+
+    Graph_lib::Rectangle *getRect(Point pt1, Point pt2)
+    {
+        Point top_left = Point(min(pt1.x, pt2.x), min(pt1.y, pt2.y));
+        Point bottom_right = Point(max(pt1.x, pt2.x), max(pt1.y, pt2.y));
+        return new Graph_lib::Rectangle(top_left, bottom_right);
+    }
 
     Graph_lib::Color::Color_type random_color() {
         static std::random_device rd;
@@ -56,9 +74,7 @@ class rectWindow : public Graph_lib::Window
             detach(*pRect);
             delete pRect;
         }
-        Point top_left = Point(min(start.x, pt.x), min(start.y, pt.y));
-        Point bottom_right = Point(max(start.x, pt.x), max(start.y, pt.y));
-        pRect = new Graph_lib::Rectangle(top_left, bottom_right);
+        pRect = getRect(start, pt);
         pRect->set_color(random_color()); // :)
         attach(*pRect);
         redraw();
@@ -67,19 +83,16 @@ class rectWindow : public Graph_lib::Window
 
     void stopDrawing(Point stop)
     {
-        if (!canvas.point_inside(stop)) {
-            drawingNow = false;
-            detach(*pRect);
-            delete pRect;
-        }
-        else {
-            drawingNow = false;
-            rects.push_back(make_pair(start, stop));
-            shapes.push_back(pRect);
-        }
+        drawingNow = false;
+        auto coords = canvas.intersect(start, stop);
+        auto rect = getRect(coords.first, coords.second);
+        rect->set_color(random_color()); // :)
+        shapes.push_back(rect);
+        attach(*rect);
+        detach(*pRect);
+        delete pRect;
         pRect = nullptr;
         redraw();
-        return;
     }
 
     static void cb_close(Address, Address pw)
@@ -94,9 +107,16 @@ class rectWindow : public Graph_lib::Window
 
     void save()
     {
+        // Rect ((79.7,120)(283.1,79.7))
         ofstream ofs("rect.txt");
-        for (auto& rect : rects) {
-            ofs << "Rect " << rect.first << ' ' << rect.second << endl;
+        for (auto s : shapes) {
+            // check if s is a rectangle
+            if (auto rect = dynamic_cast<Graph_lib::Rectangle *>(s)) {
+                ofs << *rect << '\n';
+            }
+            else {
+                cerr << "Unknown shape\n";
+            }
         }
     }
 
