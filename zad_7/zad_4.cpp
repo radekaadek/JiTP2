@@ -112,7 +112,6 @@ class rectWindow : public Graph_lib::Window
 
     void save()
     {
-        // Rect ((79.7,120)(283.1,79.7))
         ofstream ofs("rect.txt");
         for (auto s : shapes) {
             // check if s is a rectangle
@@ -163,6 +162,13 @@ public:
     {
         attach(btn_close);
         attach(btn_save);
+    }
+    ~rectWindow()
+    {
+        for (auto s : shapes)
+            delete s;
+        if (pRect)
+            delete pRect;
     }
 };
 
