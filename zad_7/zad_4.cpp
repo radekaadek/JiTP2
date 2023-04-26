@@ -43,7 +43,7 @@ class rectWindow : public Graph_lib::Window
     bool drawingNow = false;
     DrawingArea canvas;
     Point start;
-    Graph_lib::Rectangle *pRect;
+    unique_ptr<Graph_lib::Rectangle> pRect;
     vector<Shape *> shapes;
 
     Graph_lib::Rectangle *getRect(Point pt1, Point pt2)
@@ -70,11 +70,8 @@ class rectWindow : public Graph_lib::Window
     {
         if (start.x == pt.x || start.y == pt.y)
             return;
-        if (pRect) {
-            detach(*pRect);
-            delete pRect;
-        }
-        pRect = getRect(start, pt);
+        detach(*pRect);
+        pRect = unique_ptr<Graph_lib::Rectangle>(getRect(start, pt));
         pRect->set_color(random_color()); // :)
         attach(*pRect);
         redraw();
@@ -84,20 +81,20 @@ class rectWindow : public Graph_lib::Window
     void stopDrawing(Point stop)
     {
         drawingNow = false;
+        if (pRect) {
+            // Draw a new rectangle confined to the canvas
+            auto coords = canvas.intersect(start, stop);
+            auto rect = getRect(coords.first, coords.second);
+            rect->set_color(random_color()); // :)
+            shapes.push_back(rect);
+            attach(*rect);
 
-        // Draw a new rectangle confined to the canvas
-        auto coords = canvas.intersect(start, stop);
-        auto rect = getRect(coords.first, coords.second);
-        rect->set_color(random_color()); // :)
-        shapes.push_back(rect);
-        attach(*rect);
+            // Delete the temporary rectangle
+            detach(*pRect);
+            pRect.reset(nullptr);
+            redraw();
+        }
 
-        // Delete the temporary rectangle
-        detach(*pRect);
-        delete pRect;
-        pRect = nullptr;
-
-        redraw();
     }
 
     static void cb_close(Address, Address pw)
@@ -122,6 +119,8 @@ class rectWindow : public Graph_lib::Window
                 cerr << "Unknown shape\n";
             }
         }
+        // close the file
+        ofs.close();
     }
 
     Point event_xy() const
@@ -167,8 +166,6 @@ public:
     {
         for (auto s : shapes)
             delete s;
-        if (pRect)
-            delete pRect;
     }
 };
 
