@@ -17,23 +17,23 @@ public:
     static Matrix rotateMx(T angle);
     friend std::ostream& operator << (std::ostream& os, const Matrix& mx)
     {
-    for (auto row : mx.cf)
-    {
-        for (auto col : row)
-            os << col << " ";
-        os << '\n';
-    }
-    return os;
+        for (auto row : mx.cf)  
+        {
+            for (auto col : row)
+                os << col << " ";
+            os << '\n';
+        }
+        return os;
     }
     friend Matrix operator * (const Matrix& lhm, const Matrix& rhm)
     {
         Matrix<T> res;
-        for (int i = 0; i < size; ++i)
-            res.cf[i][i] = 0;
-        for (int i = 0; i < size; ++i)
-            for (int j = 0; j < size; ++j)
-                for (int k = 0; k < size; ++k)
-                    res.cf[i][j] += lhm.cf[i][k] * rhm.cf[k][j];
+        for (int lrow = 0; lrow < size; ++lrow)
+            for (int lcol = 0; lcol < size; ++lcol) {
+                res.cf[lrow][lcol] = 0;
+                for (int rcol = 0; rcol < size; ++rcol)
+                    res.cf[lrow][lcol] += lhm.cf[lrow][rcol] * rhm.cf[rcol][lcol];
+            }
         return res;
     }
     Matrix& operator *= (const Matrix& rhm);
