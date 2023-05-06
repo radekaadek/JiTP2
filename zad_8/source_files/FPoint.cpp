@@ -1,3 +1,4 @@
+#include <cmath>
 #include "FPoint.h"
 
 std::ostream& operator <<(std::ostream& os, const FPoint& p)
@@ -19,12 +20,12 @@ FPoint::operator Graph_lib::Point() const
 
 FPoint min(const FPoint& lf, const FPoint& rt)
 {
- return FPoint(min(lf.x, rt.x), min(lf.y, rt.y));
+ return FPoint(std::min(lf.x, rt.x), std::min(lf.y, rt.y));
 }
 
 FPoint max(const FPoint& lf, const FPoint& rt)
 {
- return FPoint(max(lf.x, rt.x), max(lf.y, rt.y));
+ return FPoint(std::max(lf.x, rt.x), std::max(lf.y, rt.y));
 }
 
 FPoint operator+(const FPoint& lpoint, float val)
