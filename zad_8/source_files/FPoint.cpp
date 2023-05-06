@@ -2,7 +2,7 @@
 
 std::ostream& operator <<(std::ostream& os, const FPoint& p)
 {
- os << "(" << p.x << ", " << p.y << ")";
+ os << p.x << " " << p.y;
  return os;
 }
 

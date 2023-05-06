@@ -17,6 +17,15 @@ void testMatrix() {
                     assert(mx(row, col) == 0);
     }
 
+    // test copy constructor
+    {
+        mx.translateMx(2, 3);
+        Matrix<long double> mx2(mx);
+        for (int col = 0; col < mxSize; ++col)
+            for (int row = 0; row < mxSize; ++row)
+                assert(mx2(row, col) == mx(row, col));
+    }
+
     // test scale matrix
     {
         mx = Matrix<long double>::scaleMx(2, 3);

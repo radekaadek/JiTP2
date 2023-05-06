@@ -105,11 +105,15 @@ FPoint Matrix<T>::transform(const FPoint& pt) const
 template <typename T>
 const T& Matrix<T>::operator() (unsigned int rowid, unsigned int colid) const
 {
+    if (rowid >= size || colid >= size)
+        throw std::out_of_range("Matrix subscript out of range");
     return cf[rowid][colid];
 }
 
 template <typename T>
 T& Matrix<T>::operator() (unsigned int rowid, unsigned int colid)
 {
+    if (rowid >= size || colid >= size)
+        throw std::out_of_range("Matrix subscript out of range");
     return cf[rowid][colid];
 }
