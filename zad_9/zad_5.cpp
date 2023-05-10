@@ -262,9 +262,12 @@ int main() {
 
     cout << trafo << endl;
 
-    myWindow wnd(FPoint(100, 100), 600, 400, window_title());
-    for (auto pf : figs)
-        wnd.attach(*(pf->get_shape(trafo.first, trafo.second)));
+    myWindow wnd(FPoint(100, 100), 600, 400, window_title(), trafo.first, trafo.second);
+    for (auto pf : figs) {
+        auto shape = pf->get_shape(trafo.first, trafo.second);
+        wnd.attachFig(pf, shape);
+    }
+    // *(pf->get_shape(trafo.first, trafo.second))
     Graph_lib::gui_main();
     return 0;
 }

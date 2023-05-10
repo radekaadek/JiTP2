@@ -1,8 +1,7 @@
 #pragma once
-#include <iostream>
-#include <vector>
 #include "Graph.h"
 #include "FPoint.h"
+#include "Matrix.h"
 
 float distance(const FPoint& p1, const FPoint& p2);
 
@@ -21,15 +20,12 @@ public:
     figure(const std::vector<FPoint>& fv = {}) : fdef(fv) {}
     virtual ~figure() {}
     virtual std::pair<FPoint, FPoint> bbox() const;
-    // get_points() returns a vector of points that define the figure
-    virtual std::vector<FPoint> get_points() const {
-        return fdef;
-    }
     static std::string class_id() { return "Unknown"; }
     virtual Graph_lib::Shape* get_shape( 
         const FPoint& scale = {1.0f, 1.0f},  
         const FPoint& trans = {0.0f, 0.0f}) const = 0;
     virtual std::string get_id() const = 0;
+    virtual void rotate(float) {};
     friend std::istream& operator>>(std::istream& is, figure& f);
     friend std::ostream& operator<<(std::ostream& os, const figure& f);
 };
@@ -48,8 +44,21 @@ public:
     Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) {
         return new Graph_lib::Rectangle(p1, p2);
     }
-    std::vector<FPoint> get_points() const {
-        
+    void rotate(float angle) {
+        // Step 1: determine the center of the rectangle
+        FPoint center = FPoint((fdef[0].x + fdef[1].x) / 2.0f, (fdef[0].y + fdef[1].y) / 2.0f);
+        // Step 2: translate the rectangle so that the center is at the origin
+        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
+        // Step 3: rotate the rectangle
+        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
+        // Step 4: translate the rectangle back to its original position
+        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
+        // Step 5: apply the transformations to the rectangle
+        FPoint tl = trans2.transform(fdef[0]);
+        FPoint br = trans2.transform(fdef[1]);
+        fdef[0] = tl;
+        fdef[1] = br;
+
     }
 };
 
@@ -65,9 +74,6 @@ public:
     Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
     std::string get_id() const {
         return class_id();
-    }
-    std::vector<FPoint> get_points() const {
-
     }
 };
 

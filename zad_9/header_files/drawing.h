@@ -7,23 +7,31 @@ typedef void* Address;
 
 class myWindow : public Graph_lib::Window {
 public:
-    myWindow(Graph_lib::Point loc, int w, int h, const std::string& title) :
+    myWindow(Graph_lib::Point loc, int w, int h, const std::string& title, FPoint scale = { 1.0f, 1.0f}, FPoint translation = { 0.0f, 0.0f }) :
         Graph_lib::Window(loc, w, h, title),
         animate(Graph_lib::Point(0, 0), 70, 20, "Start/Stop", cb_toggleAnimation),
-        close(Graph_lib::Point(0, 20), 70, 20, "Close", cb_close)
+        close(Graph_lib::Point(0, 20), 70, 20, "Close", cb_close),
+        scale(scale), transformation(translation)
         {
             attach(animate);
             attach(close);
         }
     ~myWindow()
     {
-        for (auto& f : figures)
-            delete f;
+        for (auto& f : figures) {
+            detach(*f.second);
+            delete f.second;
+            delete f.first;
+        }
     };
-    void add_figure(figure* f) { figures.push_back(f); }
-    void stopAnimation() { animationRunning = false; }
+    void attachFig(figure* f, Graph_lib::Shape* s)
+    {
+        figures.push_back(std::make_pair(f, s));
+        attach(*s);
+    }
 private:
-    std::vector<figure*> figures;
+    FPoint scale, transformation;
+    std::vector<std::pair<figure*, Graph_lib::Shape*>> figures;
     bool animationRunning = false;
     float rotationAngle = 0.0f;
     Button animate, close;
@@ -53,6 +61,16 @@ private:
     }
     void refreshMap()
     {
+        for (auto& f : figures) {
+            f.first->rotate(rotationAngle);
+            // detach the old shape
+            detach(*f.second);
+            delete f.second;
+            // create a new shape
+            f.second = f.first->get_shape(scale, transformation);
+            // attach the new shape
+            attach(*f.second);
+        }
         redraw();
     }
 
