@@ -1,8 +1,6 @@
 #pragma once
-#include <vector>
-#include "Window.h"
+#include "Simple_window.h"
 #include "figure.h"
-#include "Graph.h"
 
 // define adress as a pointer to a function
 typedef void* Address;
@@ -10,7 +8,13 @@ typedef void* Address;
 class myWindow : public Graph_lib::Window {
 public:
     myWindow(Graph_lib::Point loc, int w, int h, const std::string& title) :
-        Graph_lib::Window(loc, w, h, title) {};
+        Graph_lib::Window(loc, w, h, title),
+        animate(Graph_lib::Point(0, 0), 70, 20, "Start/Stop", cb_toggleAnimation),
+        close(Graph_lib::Point(0, 20), 70, 20, "Close", cb_close)
+        {
+            attach(animate);
+            attach(close);
+        }
     ~myWindow()
     {
         for (auto& f : figures)
@@ -22,6 +26,36 @@ private:
     std::vector<figure*> figures;
     bool animationRunning = false;
     float rotationAngle = 0.0f;
+    Button animate, close;
+    static void cb_toggleAnimation(Address, Address pw)
+    {
+        reference_to<myWindow>(pw).toggleAnimation();
+    }
+    static void cb_close(Address, Address pw)
+    {
+        reference_to<myWindow>(pw).hide();
+    }
+    void toggleAnimation()
+    {
+        animationRunning = !animationRunning;
+        if (animationRunning)
+            Fl::add_timeout(0.25, timer_callback, this);
+        else
+            Fl::remove_timeout(timer_callback, this);
+    }
+    static void timer_callback(Address addr)
+    {
+        myWindow* pWnd = static_cast<myWindow*>(addr);
+        pWnd->rotationAngle += 0.05f;
+        pWnd->refreshMap();
+        if (pWnd->animationRunning)
+            Fl::repeat_timeout(0.25, timer_callback, pWnd);
+    }
+    void refreshMap()
+    {
+        redraw();
+    }
+
 };
 
 // void myWindow::timer_callback(Address addr)

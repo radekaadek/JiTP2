@@ -8,7 +8,6 @@ float distance(const FPoint& p1, const FPoint& p2);
 
 std::ostream& operator<<(std::ostream& os, const FPoint& p);
 std::istream& operator>>(std::istream& is, FPoint& p);
-std::ostream& operator<<(std::ostream& os, const std::vector<FPoint>& db1);
 std::ostream& operator<<(std::ostream& os, const std::pair<FPoint, FPoint>& db1);
 
 std::vector<FPoint> get_points(std::istream& is);

@@ -1,6 +1,7 @@
 #include "Matrix.h"
 #include "figure.h"
-#include "Simple_window.h"
+#include "drawing.h"
+#include "FPoint.h"
 
 /*
 
@@ -261,9 +262,9 @@ int main() {
 
     cout << trafo << endl;
 
-    Simple_window wnd(Point(100, 100), 600, 400, window_title());
+    myWindow wnd(FPoint(100, 100), 600, 400, window_title());
     for (auto pf : figs)
         wnd.attach(*(pf->get_shape(trafo.first, trafo.second)));
-    wnd.wait_for_button();
+    Graph_lib::gui_main();
     return 0;
 }
