@@ -109,13 +109,15 @@ std::pair<FPoint, FPoint> figure::bbox() const {
 Graph_lib::Shape* Rect::get_shape(
             const FPoint& scale,
             const FPoint& translation) const {
-    FPoint ul = FPoint(fdef[0].x * scale.x + translation.x,
-                        fdef[0].y * scale.y + translation.y);
-    FPoint lr = FPoint(fdef[1].x * scale.x + translation.x,
-                        fdef[1].y * scale.y + translation.y);
-    FPoint ulrect = FPoint(min(ul.x, lr.x), min(ul.y, lr.y));
-    FPoint lrrect = FPoint(max(ul.x, lr.x), max(ul.y, lr.y));
-    return new Graph_lib::Rectangle(ulrect, lrrect);
+    // create a Open_polyline
+    Graph_lib::Open_polyline* op = new Graph_lib::Open_polyline();
+    for (size_t i = 0; i < fdef.size(); ++i)
+        op->add(FPoint(fdef[i].x * scale.x + translation.x,
+                        fdef[i].y * scale.y + translation.y));
+    // close it
+    op->add(FPoint(fdef[0].x * scale.x + translation.x,
+                    fdef[0].y * scale.y + translation.y));
+    return op;
 }
 
 // Graph_lib::Shape* Rect::get_shape()

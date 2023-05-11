@@ -47,15 +47,26 @@ public:
     Rect(const std::vector<FPoint>& fv) : figure(fv) {
         if (fv.size() != 2)
             throw std::runtime_error("Rect: ... points.");
+        FPoint tr = { fv[1].x, fv[0].y };
+        FPoint bl = { fv[0].x, fv[1].y };
+        fdef = { fv[0], tr, fv[1], bl };
     }
     virtual ~Rect() {};
     static std::string class_id() { return "Rect"; }
     Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
     // polyline rectangle
-    Graph_lib::Shape* get_shape(const FPoint& tl, const FPoint& tr, const FPoint& bl, const FPoint& br) const;
     std::string get_id() const { return class_id(); }
     void rotate(float angle, FPoint center) {
-
+        // Step 2: translate the rectangle so that the center is at the origin
+        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
+        // Step 3: rotate the rectangle
+        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
+        // Step 4: translate the rectangle back to its original position
+        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
+        // Step 5: apply the transformations to the rectangle
+        for (auto& p : fdef) {
+            p = trans2.transform(p);
+        }
     }
 };
 
