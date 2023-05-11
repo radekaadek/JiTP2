@@ -267,7 +267,6 @@ int main() {
         auto shape = pf->get_shape(trafo.first, trafo.second);
         wnd.attachFig(pf, shape);
     }
-    // *(pf->get_shape(trafo.first, trafo.second))
     Graph_lib::gui_main();
     return 0;
 }

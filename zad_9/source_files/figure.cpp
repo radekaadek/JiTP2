@@ -118,6 +118,8 @@ Graph_lib::Shape* Rect::get_shape(
     return new Graph_lib::Rectangle(ulrect, lrrect);
 }
 
+// Graph_lib::Shape* Rect::get_shape()
+
 Graph_lib::Shape* Circ::get_shape(
             const FPoint& scale,
             const FPoint& translation) const {

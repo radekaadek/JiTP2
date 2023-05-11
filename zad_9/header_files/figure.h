@@ -25,7 +25,18 @@ public:
         const FPoint& scale = {1.0f, 1.0f},  
         const FPoint& trans = {0.0f, 0.0f}) const = 0;
     virtual std::string get_id() const = 0;
-    virtual void rotate(float) {};
+    virtual void rotate(float angle, FPoint center) {
+        // Step 2: translate the rectangle so that the center is at the origin
+        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
+        // Step 3: rotate the rectangle
+        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
+        // Step 4: translate the rectangle back to its original position
+        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
+        // Step 5: apply the transformations to the rectangle
+        for (auto& p : fdef) {
+            p = trans2.transform(p);
+        }
+    }
     friend std::istream& operator>>(std::istream& is, figure& f);
     friend std::ostream& operator<<(std::ostream& os, const figure& f);
 };
@@ -40,24 +51,10 @@ public:
     virtual ~Rect() {};
     static std::string class_id() { return "Rect"; }
     Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
+    // polyline rectangle
+    Graph_lib::Shape* get_shape(const FPoint& tl, const FPoint& tr, const FPoint& bl, const FPoint& br) const;
     std::string get_id() const { return class_id(); }
-    Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) {
-        return new Graph_lib::Rectangle(p1, p2);
-    }
-    void rotate(float angle) {
-        // Step 1: determine the center of the rectangle
-        FPoint center = FPoint((fdef[0].x + fdef[1].x) / 2.0f, (fdef[0].y + fdef[1].y) / 2.0f);
-        // Step 2: translate the rectangle so that the center is at the origin
-        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
-        // Step 3: rotate the rectangle
-        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
-        // Step 4: translate the rectangle back to its original position
-        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
-        // Step 5: apply the transformations to the rectangle
-        FPoint tl = trans2.transform(fdef[0]);
-        FPoint br = trans2.transform(fdef[1]);
-        fdef[0] = tl;
-        fdef[1] = br;
+    void rotate(float angle, FPoint center) {
 
     }
 };

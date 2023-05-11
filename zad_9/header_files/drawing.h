@@ -15,6 +15,7 @@ public:
         {
             attach(animate);
             attach(close);
+            center = { (float)x_max() / 2.0f, (float)y_max() / 2.0f };
         }
     ~myWindow()
     {
@@ -30,7 +31,7 @@ public:
         attach(*s);
     }
 private:
-    FPoint scale, transformation;
+    FPoint scale, transformation, center;
     std::vector<std::pair<figure*, Graph_lib::Shape*>> figures;
     bool animationRunning = false;
     float rotationAngle = 0.0f;
@@ -54,7 +55,7 @@ private:
     static void timer_callback(Address addr)
     {
         myWindow* pWnd = static_cast<myWindow*>(addr);
-        pWnd->rotationAngle += 0.05f;
+        pWnd->rotationAngle += 0.01f;
         pWnd->refreshMap();
         if (pWnd->animationRunning)
             Fl::repeat_timeout(0.25, timer_callback, pWnd);
@@ -62,7 +63,7 @@ private:
     void refreshMap()
     {
         for (auto& f : figures) {
-            f.first->rotate(rotationAngle);
+            f.first->rotate(rotationAngle, center);
             // detach the old shape
             detach(*f.second);
             delete f.second;
