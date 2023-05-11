@@ -56,18 +56,6 @@ public:
     Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
     // polyline rectangle
     std::string get_id() const { return class_id(); }
-    void rotate(float angle, FPoint center) {
-        // Step 2: translate the rectangle so that the center is at the origin
-        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
-        // Step 3: rotate the rectangle
-        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
-        // Step 4: translate the rectangle back to its original position
-        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
-        // Step 5: apply the transformations to the rectangle
-        for (auto& p : fdef) {
-            p = trans2.transform(p);
-        }
-    }
 };
 
 class Circ : public figure {
