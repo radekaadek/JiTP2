@@ -1,5 +1,5 @@
 #pragma once
-#include "FPoint.h"
+#include "fpoint.h"
 #include <iostream>
 
 template <typename T> class Matrix

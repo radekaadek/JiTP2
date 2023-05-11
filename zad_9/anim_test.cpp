@@ -1,6 +1,6 @@
 #include "figure.h"
 #include "drawing.h"
-#include "FPoint.h"
+#include "fpoint.h"
 
 int main()
 {

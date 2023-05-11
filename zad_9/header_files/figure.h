@@ -1,6 +1,6 @@
 #pragma once
 #include "Graph.h"
-#include "FPoint.h"
+#include "fpoint.h"
 #include "matrix.h"
 
 float distance(const FPoint& p1, const FPoint& p2);

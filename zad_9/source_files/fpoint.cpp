@@ -1,5 +1,5 @@
 #include <cmath>
-#include "FPoint.h"
+#include "fpoint.h"
 
 std::ostream& operator<<(std::ostream& os, const FPoint& p)
 {
