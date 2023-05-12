@@ -25,17 +25,18 @@ public:
         const FPoint& scale = {1.0f, 1.0f},  
         const FPoint& trans = {0.0f, 0.0f}) const = 0;
     virtual std::string get_id() const = 0;
-    virtual void rotate(float angle, FPoint center) {
-        // Step 2: translate the rectangle so that the center is at the origin
-        Matrix<float> trans1 = Matrix<float>::translateMx(center.x, center.y);
-        // Step 3: rotate the rectangle
-        Matrix<float> rot = trans1 * Matrix<float>::rotateMx(angle);
-        // Step 4: translate the rectangle back to its original position
-        Matrix<float> trans2 = rot * Matrix<float>::translateMx(-center.x, -center.y);
-        // Step 5: apply the transformations to the rectangle
-        for (auto& p : fdef) {
-            p = trans2.transform(p);
-        }
+    virtual void transform(float angle = 0, FPoint center = {0, 0}, FPoint scale = {1, 1}, FPoint translation = {0, 0}) {
+        // Step 1: translate to origin
+        Matrix<float> m = Matrix<float>::translateMx(-center.x, -center.y);
+        // Step 2: rotate
+        m = Matrix<float>::rotateMx(angle) * m;
+        // Step 3: scale
+        m = Matrix<float>::scaleMx(scale.x, scale.y) * m;
+        // Step 4: translate back
+        m = Matrix<float>::translateMx(center.x + translation.x, center.y + translation.y) * m;
+        // Step 5: apply transformation
+        for (auto &p : fdef)
+            p = m.transform(p);
     }
     friend std::istream& operator>>(std::istream& is, figure& f);
     friend std::ostream& operator<<(std::ostream& os, const figure& f);

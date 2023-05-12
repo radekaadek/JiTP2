@@ -2,12 +2,13 @@
 
 void myWindow::refreshMap()
 {
-    for (auto& f : figures) {
-        f.first->rotate(rotationAngle, center);
+    for (auto &f : figures)
+    {
         // detach the old shape
         detach(*f.second);
         delete f.second;
         // create a new shape
+        f.first->transform(rotationSpeed, center);
         f.second = f.first->get_shape(scale, transformation);
         // attach the new shape
         attach(*f.second);
@@ -17,8 +18,7 @@ void myWindow::refreshMap()
 
 void myWindow::timer_callback(Address addr)
 {
-    myWindow* pWnd = static_cast<myWindow*>(addr);
-    pWnd->rotationAngle += 0.01f;
+    myWindow *pWnd = static_cast<myWindow *>(addr);
     pWnd->refreshMap();
     if (pWnd->animationRunning)
         Fl::repeat_timeout(0.25, timer_callback, pWnd);
@@ -27,18 +27,20 @@ void myWindow::timer_callback(Address addr)
 void myWindow::toggleAnimation()
 {
     animationRunning = !animationRunning;
-    if (animationRunning) {
+    if (animationRunning)
+    {
         // change the button label
         animate.label = "Stop";
         Fl::add_timeout(0.25, timer_callback, this);
     }
-    else {
+    else
+    {
         Fl::remove_timeout(timer_callback, this);
         animate.label = "Start";
     }
 }
 
-void myWindow::attach_fig(figure* f)
+void myWindow::attach_fig(figure *f)
 {
     auto shape = f->get_shape(scale, transformation);
     figures.push_back(std::make_pair(f, shape));
