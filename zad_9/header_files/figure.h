@@ -22,21 +22,22 @@ public:
     virtual std::pair<FPoint, FPoint> bbox() const;
     static std::string class_id() { return "Unknown"; }
     virtual Graph_lib::Shape* get_shape( 
-        const FPoint& scale = {1.0f, 1.0f},  
-        const FPoint& trans = {0.0f, 0.0f}) const = 0;
+        const std::vector<FPoint>& pts) const = 0;
     virtual std::string get_id() const = 0;
-    virtual void transform(float angle = 0, FPoint center = {0, 0}, FPoint scale = {1, 1}, FPoint translation = {0, 0}) {
+    virtual Graph_lib::Shape* transform(float angle = 0, FPoint center = {0, 0}, FPoint scale = {1, 1}, FPoint translation = {0, 0}) const {
         // Step 1: translate to origin
-        Matrix<float> m = Matrix<float>::translateMx(-center.x, -center.y);
+        Matrix<long double> m = Matrix<long double>::translateMx(-center.x, -center.y);
         // Step 2: rotate
-        m = Matrix<float>::rotateMx(angle) * m;
+        m = Matrix<long double>::rotateMx(angle) * m;
         // Step 3: scale
-        m = Matrix<float>::scaleMx(scale.x, scale.y) * m;
+        m = Matrix<long double>::scaleMx(scale.x, scale.y) * m;
         // Step 4: translate back
-        m = Matrix<float>::translateMx(center.x + translation.x, center.y + translation.y) * m;
+        m = Matrix<long double>::translateMx(center.x, center.y) * m;
         // Step 5: apply transformation
-        for (auto &p : fdef)
-            p = m.transform(p);
+        m = Matrix<long double>::translateMx(translation.x, translation.y) * m;
+        std::vector<FPoint> new_fdef(fdef.size());
+        std::transform(fdef.begin(), fdef.end(), new_fdef.begin(), [&m](const FPoint& p) { return m.transform(p); });
+        return get_shape(new_fdef);
     }
     friend std::istream& operator>>(std::istream& is, figure& f);
     friend std::ostream& operator<<(std::ostream& os, const figure& f);
@@ -54,7 +55,7 @@ public:
     }
     virtual ~Rect() {};
     static std::string class_id() { return "Rect"; }
-    Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
+    Graph_lib::Shape* get_shape(const std::vector<FPoint>& fv) const;
     // polyline rectangle
     std::string get_id() const { return class_id(); }
 };
@@ -68,7 +69,7 @@ public:
     static std::string class_id() {
         return "Circ";
     }
-    Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
+    Graph_lib::Shape* get_shape(const std::vector<FPoint>& fv) const;
     std::string get_id() const {
         return class_id();
     }
@@ -83,7 +84,7 @@ public:
     static std::string class_id() {
         return "Line";
     }
-    Graph_lib::Shape* get_shape(const FPoint& p1, const FPoint& p2) const;
+    Graph_lib::Shape* get_shape(const std::vector<FPoint>& fv) const;
     std::string get_id() const {
         return class_id();
     }

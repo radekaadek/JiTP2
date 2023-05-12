@@ -82,13 +82,13 @@ pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf) {
     return { min, max };
 }
 
-Graph_lib::Shape* Line::get_shape(const FPoint& scale, const FPoint& translation) const {
+Graph_lib::Shape* Line::get_shape(const std::vector<FPoint>& pts) const {
     Graph_lib::Lines* l = new Graph_lib::Lines();
-    for (size_t i = 1; i < fdef.size(); ++i)
-        l->add(FPoint(fdef[i-1].x * scale.x + translation.x,
-                    fdef[i-1].y * scale.y + translation.y),
-            FPoint(fdef[i].x * scale.x + translation.x,
-                fdef[i].y * scale.y + translation.y));
+    for (size_t i = 1; i < pts.size(); ++i)
+        l->add(FPoint(pts[i-1].x,
+                    pts[i-1].y),
+            FPoint(pts[i].x,
+                pts[i].y));
     return l;
 }
 
@@ -107,28 +107,24 @@ std::pair<FPoint, FPoint> figure::bbox() const {
 }
 
 Graph_lib::Shape* Rect::get_shape(
-            const FPoint& scale,
-            const FPoint& translation) const {
+            const std::vector<FPoint>& pts) const {
     // create a Open_polyline
     Graph_lib::Open_polyline* op = new Graph_lib::Open_polyline();
-    for (size_t i = 0; i < fdef.size(); ++i)
-        op->add(FPoint(fdef[i].x * scale.x + translation.x,
-                        fdef[i].y * scale.y + translation.y));
+    for (size_t i = 0; i < pts.size(); ++i)
+        op->add(FPoint(pts[i].x,
+                        pts[i].y));
     // close it
-    op->add(FPoint(fdef[0].x * scale.x + translation.x,
-                    fdef[0].y * scale.y + translation.y));
+    op->add(FPoint(pts[0].x,
+                    pts[0].y));
     return op;
 }
 
-// Graph_lib::Shape* Rect::get_shape()
-
 Graph_lib::Shape* Circ::get_shape(
-            const FPoint& scale,
-            const FPoint& translation) const {
+            const std::vector<FPoint>& pts) const {
     return new Graph_lib::Circle(
-        FPoint(fdef[0].x * scale.x + translation.x,
-            fdef[0].y * scale.y + translation.y),
-        distance(fdef[0], fdef[1]) * scale.x
+        FPoint(pts[0].x,
+            pts[0].y),
+        distance(pts[0], pts[1])
     );
 }
 

@@ -33,7 +33,7 @@ private:
     std::pair<FPoint, FPoint> traflo;
     std::vector<std::pair<figure *, Graph_lib::Shape *>> figures;
     bool animationRunning = false;
-    float rotationSpeed = 0.01f;
+    float rotationAngle = 0.00f;
     static void cb_toggleAnimation(Address, Address pw)
     {
         reference_to<myWindow>(pw).toggleAnimation();
