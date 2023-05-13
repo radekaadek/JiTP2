@@ -31,7 +31,7 @@ void myWindow::toggleAnimation()
     {
         // change the button label
         animate.label = "Stop";
-        Fl::add_timeout(0.25, timer_callback, this);
+        Fl::add_timeout(0.10, timer_callback, this);
     }
     else
     {
@@ -50,11 +50,37 @@ std::vector<figure*> myWindow::get_figures() const
     return figs;
 }
 
+std::pair<FPoint, FPoint> myWindow::shape_bbox() const
+{
+    std::pair<FPoint, FPoint> bbox = {{0.0f, 0.0f}, {0.0f, 0.0f}};
+    // get the bounding box of all shapes stored in figures
+    // and return it
+    auto figs = get_figures();
+    // get transformed bounding box of all figures with get_transformed_pts
+    for (auto &f : figs)
+    {
+        auto pts = f->get_transformed_pts(rotationAngle, center, scale, transformation);
+        for (auto &p : pts)
+        {
+            bbox.first = min(bbox.first, p);
+            bbox.second = max(bbox.second, p);
+        }
+    }
+    return bbox;
+
+}
+
 void myWindow::attach_fig(figure *f)
 {
     auto shape = f->transform(rotationAngle, center, scale, transformation);
     figures.push_back(std::make_pair(f, shape));
-    auto figures = get_figures();
-    corona_box = map_bbox(figures);
     attach(*shape);
+}
+
+void myWindow::attach_figs(std::vector<figure *> figs)
+{
+    for (auto &f : figs)
+    {
+        attach_fig(f);
+    }
 }

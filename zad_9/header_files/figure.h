@@ -25,19 +25,21 @@ public:
         const std::vector<FPoint>& pts) const = 0;
     virtual std::string get_id() const = 0;
     virtual Graph_lib::Shape* transform(float angle = 0, FPoint center = {0, 0}, FPoint scale = {1, 1}, FPoint translation = {0, 0}) const {
+        std::vector<FPoint> new_fdef = get_transformed_pts(angle, center, scale, translation);
+        return get_shape(new_fdef);
+    }
+    virtual std::vector<FPoint> get_transformed_pts(float angle = 0, FPoint center = {0, 0}, FPoint scale = {1, 1}, FPoint translation = {0, 0}) const {
         // Step 1: translate to origin
         Matrix<long double> m = Matrix<long double>::translateMx(-center.x, -center.y);
         // Step 2: rotate
         m = Matrix<long double>::rotateMx(angle) * m;
         // Step 3: scale
         m = Matrix<long double>::scaleMx(scale.x, scale.y) * m;
-        // Step 4: translate back
-        m = Matrix<long double>::translateMx(center.x, center.y) * m;
-        // Step 5: apply transformation
-        m = Matrix<long double>::translateMx(translation.x, translation.y) * m;
+        // Step 4: translate back with translation
+        m = Matrix<long double>::translateMx(center.x + translation.x, center.y + translation.y) * m;
         std::vector<FPoint> new_fdef(fdef.size());
         std::transform(fdef.begin(), fdef.end(), new_fdef.begin(), [&m](const FPoint& p) { return m.transform(p); });
-        return get_shape(new_fdef);
+        return new_fdef;
     }
     friend std::istream& operator>>(std::istream& is, figure& f);
     friend std::ostream& operator<<(std::ostream& os, const figure& f);

@@ -72,25 +72,21 @@ figure* get_figure(std::istream& is) {
 pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf) {
     if (vf.empty())
         return { {0,0}, {0,0} };
-    FPoint min = vf[0]->bbox().first;
-    FPoint max = vf[0]->bbox().second;
+    FPoint mi = vf[0]->bbox().first;
+    FPoint ma = vf[0]->bbox().second;
     for (size_t i = 1; i < vf.size(); ++i) {
         auto bb = vf[i]->bbox();
-        min.x = std::min(min.x, bb.first.x);
-        min.y = std::min(min.y, bb.first.y);
-        max.x = std::max(max.x, bb.second.x);
-        max.y = std::max(max.y, bb.second.y);
+        mi = min(mi, bb.first);
+        ma = max(ma, bb.second);
     }
-    return { min, max };
+    return { mi, ma };
 }
 
 Graph_lib::Shape* Line::get_shape(const std::vector<FPoint>& pts) const {
-    Graph_lib::Lines* l = new Graph_lib::Lines();
-    for (size_t i = 1; i < pts.size(); ++i)
-        l->add(FPoint(pts[i-1].x,
-                    pts[i-1].y),
-            FPoint(pts[i].x,
-                pts[i].y));
+    Graph_lib::Open_polyline* l = new Graph_lib::Open_polyline();
+    for (size_t i = 0; i < pts.size(); ++i)
+        l->add(FPoint(pts[i].x,
+            pts[i].y));
     return l;
 }
 

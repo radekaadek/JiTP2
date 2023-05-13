@@ -5,16 +5,28 @@
 class myWindow : public Graph_lib::Window
 {
 public:
-    myWindow(Graph_lib::Point loc, int w, int h, const std::string &title,
-            FPoint scale = {1.0f, 1.0f}, FPoint translation = {0.0f, 0.0f}) :
+    myWindow(Graph_lib::Point loc, int w, int h, const std::string &title, const std::vector<figure *> figs) :
             Graph_lib::Window(loc, w, h, title),
-            animate(Graph_lib::Point(0, 0), 70, 20, "Start/Stop", cb_toggleAnimation),
-            close(Graph_lib::Point(0, 20), 70, 20, "Close", cb_close),
-            scale(scale), transformation(translation)
+            animate(Graph_lib::Point(0, 0), 70, 20, "Start", cb_toggleAnimation),
+            close(Graph_lib::Point(0, 20), 70, 20, "Close", cb_close)
             {
+                // przygotowanie do wyswietlenia
+                std::pair<FPoint, FPoint> fig_box = map_bbox(figs);
+
+                for (unsigned int i = 0; i < figs.size(); ++i)
+                {
+                    cout << i << ": " << figs[i]->bbox() << endl;
+                }
+
+                pair<FPoint, FPoint> trafo = get_transformation(fig_box, win_box);
+                scale = trafo.first;
+                transformation = trafo.second;
+                attach_figs(figs);
                 attach(animate);
                 attach(close);
-                center = {(float)x_max() / 2.0f, (float)y_max() / 2.0f};
+                // nie wiem gdzie jest srodek :(
+                center = {(win_box.first.x + win_box.second.x) / 2,
+                          (win_box.first.y + win_box.second.y) / 2};
             };
     ~myWindow()
     {
@@ -26,11 +38,11 @@ public:
         }
     };
     void attach_fig(figure *f);
-
+    void attach_figs(std::vector<figure *> figs);
 private:
     Button animate, close;
-    FPoint scale, transformation, center;
-    std::pair<FPoint, FPoint> traflo, corona_box = {{0.0f, 0.0f}, {0.0f, 0.0f}};
+    FPoint scale = {1, 1}, transformation = {0, 0}, center = {0, 0};
+    // const pair<FPoint, FPoint> win_box = {{20.0f, 20.0f}, {500.f, 380.f}};
     const pair<FPoint, FPoint> win_box = {{20.0f, 20.0f}, {500.f, 380.f}};
     std::vector<std::pair<figure *, Graph_lib::Shape *>> figures;
     bool animationRunning = false;
@@ -47,4 +59,5 @@ private:
     static void timer_callback(Address addr);
     void refreshMap();
     std::vector<figure*> get_figures() const;
+    std::pair<FPoint, FPoint> shape_bbox() const;
 };

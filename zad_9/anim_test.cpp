@@ -31,12 +31,20 @@ int main()
     }
     ifs.close();
 
-    myWindow wnd(FPoint(100, 100), 600, 400, window_title());
-    for (auto pf : figs)
+    // przygotowanie do wyswietlenia
+    pair<FPoint, FPoint> corona_box = map_bbox(figs);
+
+    for (unsigned int i = 0; i < figs.size(); ++i)
     {
-        wnd.attach_fig(pf);
+        cout << i << ": " << figs[i]->bbox() << endl;
     }
-    
+
+    myWindow wnd(FPoint(100, 100), 600, 400, window_title(), figs);
+    // for (auto pf : figs)
+    // {
+    //     wnd.attach_fig(pf);
+    // }
+    wnd.wait_for_expose();
     Graph_lib::gui_main();
     return 0;
 }
