@@ -19,7 +19,7 @@ void myWindow::timer_callback(Address addr)
 {
     myWindow *pWnd = static_cast<myWindow *>(addr);
     pWnd->refreshMap();
-    pWnd->rotationAngle += 0.04f;
+    pWnd->rotationAngle += 0.05f;
     if (pWnd->animationRunning)
         Fl::repeat_timeout(0.10, timer_callback, pWnd);
 }
@@ -40,9 +40,21 @@ void myWindow::toggleAnimation()
     }
 }
 
+std::vector<figure*> myWindow::get_figures() const
+{
+    std::vector<figure *> figs;
+    for (auto &f : figures)
+    {
+        figs.push_back(f.first);
+    }
+    return figs;
+}
+
 void myWindow::attach_fig(figure *f)
 {
     auto shape = f->transform(rotationAngle, center, scale, transformation);
     figures.push_back(std::make_pair(f, shape));
+    auto figures = get_figures();
+    corona_box = map_bbox(figures);
     attach(*shape);
 }

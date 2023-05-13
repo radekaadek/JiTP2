@@ -30,7 +30,8 @@ public:
 private:
     Button animate, close;
     FPoint scale, transformation, center;
-    std::pair<FPoint, FPoint> traflo;
+    std::pair<FPoint, FPoint> traflo, corona_box = {{0.0f, 0.0f}, {0.0f, 0.0f}};
+    const pair<FPoint, FPoint> win_box = {{20.0f, 20.0f}, {500.f, 380.f}};
     std::vector<std::pair<figure *, Graph_lib::Shape *>> figures;
     bool animationRunning = false;
     float rotationAngle = 0.00f;
@@ -45,4 +46,5 @@ private:
     void toggleAnimation();
     static void timer_callback(Address addr);
     void refreshMap();
+    std::vector<figure*> get_figures() const;
 };

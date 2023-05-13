@@ -70,6 +70,8 @@ figure* get_figure(std::istream& is) {
 }
 
 pair<FPoint, FPoint> map_bbox(const vector<figure*>& vf) {
+    if (vf.empty())
+        return { {0,0}, {0,0} };
     FPoint min = vf[0]->bbox().first;
     FPoint max = vf[0]->bbox().second;
     for (size_t i = 1; i < vf.size(); ++i) {
