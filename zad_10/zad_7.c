@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     printf("My kolejny C program!\n");
     if (sizeof(RGBbmpHdr) != 54)
     {
-        printf("Size of the standard RGB bitmap header is: %d\n Check compilation options.\n", sizeof(RGBbmpHdr));
+        printf("Size of the standard RGB bitmap header is: %d\n Check compilation options.\n", (int)sizeof(RGBbmpHdr));
         return 1;
     }
     for (int i=0; i < argc; ++i)

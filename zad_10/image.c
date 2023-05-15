@@ -82,7 +82,7 @@ int saveBmp(const char* fileName, ImageInfo *imageinfo)
     RGBbmpHdr bmpHead =
 	{
 	0x4D42,				// unsigned short bfType;
-	sizeof(RGBbmpHdr)+imgSize,		// unsigned long  bfSize;
+	(unsigned int)sizeof(RGBbmpHdr)+imgSize,		// unsigned long  bfSize;
 	0, 0,				// unsigned short bfReserved1, bfReserved2;
 	sizeof(RGBbmpHdr),	// unsigned long  bfOffBits;
 	40,					// unsigned long  biSize;

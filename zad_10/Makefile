@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -I image.h -Wall -Wpedantic -Wextra -Og -g
+CXXFLAGS = image.h -Wall -Wpedantic -Wextra -Og -g
 SRCS = zad_7.c image.c
 OUT = example.out
 
