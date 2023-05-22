@@ -1,6 +1,4 @@
 #pragma once
-#include "Window.h"
-#include "Graph.h"
 #include "GUI.h"
 
 struct colorSpec
