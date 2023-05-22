@@ -21,7 +21,6 @@ class MenuHeader : public Graph_lib::Button {
   void openClose();
   void showMenu();
 public:
-  // set cb to nullptr
   MenuHeader(Graph_lib::Point xy, int w, int h, const std::string& label) :
     Graph_lib::Button(xy, w, h, label, cb_openclose),
     pWnd(nullptr),

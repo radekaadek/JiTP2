@@ -11,22 +11,6 @@ const std::vector<colorSpec> MenuWindow::fill_colors = {
     {"magenta", Graph_lib::Color::magenta},
 };
 
-class colorButton : public Graph_lib::Button
-{
-    Graph_lib::Color color;
-    static void cb_changeColor(Graph_lib::Address, Graph_lib::Address pWnd)
-    {
-        MenuWindow *pMW = reinterpret_cast<MenuWindow *>(pWnd);
-        // change color of rect
-        pMW->setColor(Graph_lib::Color::red);
-    }
-public:
-    colorButton(Graph_lib::Point xy, int w, int h, const std::string &label, Graph_lib::Color color) :
-            Graph_lib::Button(xy, w, h, label, cb_changeColor),
-            color(color)
-    {}
-};
-
 void MenuWindow::setColor(Graph_lib::Color color)
 {
     rect.set_color(color);
@@ -70,7 +54,7 @@ void MenuHeader::attach(MenuWindow *pWnd, const std::vector<colorSpec> &colors)
     for (auto color : colors)
     {
         xy.y += this->height;
-        colorButton *btn = new colorButton(xy, this->width, this->height, color.label, color.color);
+        Graph_lib::Button *btn = new Graph_lib::Button(xy, this->width, this->height, color.label, nullptr);
         btns.push_back(btn);
         pWnd->attach(*btn);
     }
