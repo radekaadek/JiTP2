@@ -278,7 +278,6 @@ Rozwiązanie proszę załadować w Moodle do:
 */
 
 #include "menuwindow.h"
-#include "Graph.h"
 
 int main()
 {

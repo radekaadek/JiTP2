@@ -9,48 +9,66 @@ struct colorSpec
   Graph_lib::Color color;
 };
 
-// declare MenuWindow
 class MenuWindow;
+class MenuHeader;
+class MenuItem;
+
+struct actionDescriptor 
+{ 
+    enum Action { NoAction, Menu_toggle, Menu_select }; 
+    MenuWindow      *pParent = nullptr; 
+    MenuHeader      *pMenu = nullptr; 
+    Action           menu_action = NoAction; 
+    Graph_lib::Color selected_color = Graph_lib::Color::invisible; 
+};
+
+class MenuItem : public Graph_lib::Button
+{
+public:
+    MenuItem(Graph_lib::Point loc, int w, int h, const std::string& label) :
+        Graph_lib::Button(loc, w, h, label, nullptr)
+    {}
+    void attach(MenuWindow* pWnd, MenuHeader *pMenu, Graph_lib::Color color, Graph_lib::Callback cb_setColor);
+private:
+    actionDescriptor buttonAction;
+};
 
 class MenuHeader : public Graph_lib::Button {
   std::vector<Graph_lib::Button*> btns;
-  MenuWindow* pWnd;
-  bool expanded;
-  static void cb_openclose(Graph_lib::Address, Graph_lib::Address pw);
+  actionDescriptor action;
+  MenuWindow* pWnd = nullptr;
+  bool expanded = false;
+  actionDescriptor mAction;
+
+  static void cb_openClose(Graph_lib::Address, Graph_lib::Address pDsc);
+  static void cb_setColor(Graph_lib::Address, Graph_lib::Address pAD);
   void hideMenu();
-  void openClose();
   void showMenu();
 public:
   MenuHeader(Graph_lib::Point xy, int w, int h, const std::string& label) :
-    Graph_lib::Button(xy, w, h, label, cb_openclose),
-    pWnd(nullptr),
-    expanded(false)
+    Graph_lib::Button(xy, w, h, label, cb_openClose),
+    action()
     {}
-  ~MenuHeader() {
-    for (auto btn : btns) {
-      delete btn;
-    }
-  }
-  void attach(MenuWindow* pWnd, const std::vector<colorSpec>& colors);
+  ~MenuHeader();
+  void openClose();
+  void attach(MenuWindow* pWnd, const std::vector<colorSpec>& btns);
 };
 
-
 class MenuWindow : public Graph_lib::Window {
+  Graph_lib::Rectangle rect;
+  Graph_lib::Button close_btn;
+  MenuHeader menu_fill;
+  MenuHeader menu_line;
 
-Graph_lib::Rectangle rect;
-Graph_lib::Button close_btn;
-MenuHeader btn_fill;
-
-static void cb_close(Graph_lib::Address, Graph_lib::Address pw){
-  Graph_lib::reference_to<MenuWindow>(pw).hide();
-}
+  static void cb_close(Graph_lib::Address, Graph_lib::Address pw){
+    Graph_lib::reference_to<MenuWindow>(pw).hide();
+  }
 public:
     MenuWindow(Graph_lib::Point loc, int w, int h, const std::string& label);
     const static std::vector<colorSpec> fill_colors;
     void setColor(Graph_lib::Color color);
+    void menuAction(actionDescriptor* action);
 };
-
-
 
 
 /*
