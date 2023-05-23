@@ -13,7 +13,8 @@ class MenuItem;
 
 struct actionDescriptor
 {
-  enum Action { NoAction, Menu_toggle, Menu_select_fill, Menu_select_line };
+  enum Action
+  { NoAction, Menu_toggle, Menu_select_fill, Menu_select_line };
   MenuWindow *pParent = nullptr;
   MenuHeader *pMenu = nullptr;
   Action menu_action = NoAction;
@@ -26,6 +27,7 @@ class MenuItem : public Graph_lib::Button
 public:
   MenuItem(Graph_lib::Point loc, int w, int h, const std::string &label);
   void attach(MenuWindow *pWnd, MenuHeader *pMenu, Graph_lib::Color color, actionDescriptor::Action act);
+
 private:
   actionDescriptor buttonAction;
 };
@@ -39,6 +41,7 @@ public:
   void hideMenu();
   void showMenu();
   void toggleOpen();
+
 private:
   std::vector<Graph_lib::Button *> btns;
   MenuWindow *pWnd = nullptr;
@@ -51,11 +54,13 @@ class MenuWindow : public Graph_lib::Window
 public:
   MenuWindow(Graph_lib::Point loc, int w, int h, const std::string &label);
   const static std::vector<colorSpec> fill_colors;
-  void setFillColor(Graph_lib::Color color);
-  void setOutlineColor(Graph_lib::Color color);
+  void setRectFillColor(Graph_lib::Color color);
+  void setRectOutlineColor(Graph_lib::Color color);
+  void closeMenus(MenuHeader *pMenu);
   void menuAction(actionDescriptor *action);
-  void closeMenus();
+
 private:
+  std::vector<MenuHeader *> menus;
   Graph_lib::Rectangle rect;
   Graph_lib::Button close_btn;
   MenuHeader menu_fill;
