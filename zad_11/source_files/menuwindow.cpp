@@ -20,8 +20,8 @@ MenuWindow::MenuWindow(Graph_lib::Point loc, int w, int h, const std::string &la
     {
         attach(close_btn);
         attach(rect);
-        menu_fill.attach(this, fill_colors);
-        menu_line.attach(this, fill_colors);
+        menu_fill.attach(this, fill_colors, MenuHeader::cb_setFillColor);
+        menu_line.attach(this, fill_colors, MenuHeader::cb_setLineColor);
     }
 
 MenuHeader::~MenuHeader() {
@@ -38,19 +38,12 @@ void MenuItem::attach(MenuWindow* pWnd, MenuHeader *pMenu, Graph_lib::Color colo
 {
     buttonAction.pParent = pWnd;
     buttonAction.pMenu = pMenu;
-    buttonAction.menu_action = actionDescriptor::Menu_select;
+    buttonAction.menu_action = actionDescriptor::Menu_select_fill;
     buttonAction.selected_color = color;
 
     pWnd->attach(*this);
     pw->callback(reinterpret_cast<Fl_Callback*>(cb_setColor), &buttonAction);
 }
-
-void MenuHeader::cb_openClose(Graph_lib::Address, Graph_lib::Address pDsc) 
-{ 
-    actionDescriptor *pAD = reinterpret_cast<actionDescriptor*>(pDsc);
-    pAD->pMenu->openClose();
-    pAD->pParent->menuAction(pAD); 
-} 
 
 void MenuWindow::menuAction(actionDescriptor* action)
 {
@@ -58,11 +51,14 @@ void MenuWindow::menuAction(actionDescriptor* action)
     {
     case actionDescriptor::Menu_toggle:
         action->pMenu->openClose();
-        action->pParent->redraw();
         break;
-    case actionDescriptor::Menu_select:
-        setColor(action->selected_color);
-        action->pParent->redraw();
+    case actionDescriptor::Menu_select_fill:
+        setFillColor(action->selected_color);
+        break;
+    case actionDescriptor::Menu_select_line:
+        setOutlineColor(action->selected_color);
+        break;
+    case actionDescriptor::NoAction:
         break;
     default:
         break;
@@ -91,14 +87,28 @@ void MenuHeader::showMenu()
     }
 }
 
-void MenuHeader::cb_setColor (Graph_lib::Address, Graph_lib::Address pAD)
+void MenuHeader::cb_setFillColor (Graph_lib::Address, Graph_lib::Address pAD)
 {
     actionDescriptor *pDsc = reinterpret_cast<actionDescriptor*>(pAD);
-    pDsc->menu_action = actionDescriptor::Menu_select;
+    pDsc->menu_action = actionDescriptor::Menu_select_fill;
     pDsc->pParent->menuAction(pDsc);
 };
 
-void MenuHeader::attach(MenuWindow *pWnd, const std::vector<colorSpec> &colors)
+void MenuHeader::cb_setLineColor (Graph_lib::Address, Graph_lib::Address pAD)
+{
+    actionDescriptor *pDsc = reinterpret_cast<actionDescriptor*>(pAD);
+    pDsc->menu_action = actionDescriptor::Menu_select_line;
+    pDsc->pParent->menuAction(pDsc);
+};
+
+void MenuHeader::cb_openClose(Graph_lib::Address, Graph_lib::Address pDsc) 
+{ 
+    actionDescriptor *pAD = reinterpret_cast<actionDescriptor*>(pDsc);
+    pAD->pMenu->openClose();
+    pAD->pParent->menuAction(pAD); 
+} 
+
+void MenuHeader::attach(MenuWindow *pWnd, const std::vector<colorSpec> &colors, Graph_lib::Callback cb)
 {
     this->pWnd = pWnd;
     pWnd->attach(*this);
@@ -109,7 +119,7 @@ void MenuHeader::attach(MenuWindow *pWnd, const std::vector<colorSpec> &colors)
         xy.y += h;
         MenuItem *pItem = new MenuItem(xy, 80, 20, col.label);
         btns.push_back(pItem);
-        pItem->attach(pWnd, this, col.color, cb_setColor);
+        pItem->attach(pWnd, this, col.color, cb);
     }
 
     hideMenu();
@@ -119,9 +129,15 @@ void MenuHeader::attach(MenuWindow *pWnd, const std::vector<colorSpec> &colors)
     pw->callback(reinterpret_cast<Fl_Callback*>(cb_openClose), &mAction);
 }
 
-void MenuWindow::setColor(Graph_lib::Color color)
+void MenuWindow::setOutlineColor(Graph_lib::Color color)
 {
     rect.set_color(color);
+    redraw();
+}
+
+void MenuWindow::setFillColor(Graph_lib::Color color)
+{
+    rect.set_fill_color(color);
     redraw();
 }
 

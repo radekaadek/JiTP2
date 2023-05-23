@@ -13,7 +13,7 @@ class MenuItem;
 
 struct actionDescriptor 
 { 
-    enum Action { NoAction, Menu_toggle, Menu_select }; 
+    enum Action { NoAction, Menu_toggle, Menu_select_fill, Menu_select_line }; 
     MenuWindow      *pParent = nullptr; 
     MenuHeader      *pMenu = nullptr; 
     Action           menu_action = NoAction; 
@@ -33,23 +33,22 @@ private:
 
 class MenuHeader : public Graph_lib::Button {
   std::vector<Graph_lib::Button*> btns;
-  actionDescriptor action;
   MenuWindow* pWnd = nullptr;
   bool expanded = false;
   actionDescriptor mAction;
 
   static void cb_openClose(Graph_lib::Address, Graph_lib::Address pDsc);
-  static void cb_setColor(Graph_lib::Address, Graph_lib::Address pAD);
   void hideMenu();
   void showMenu();
 public:
   MenuHeader(Graph_lib::Point xy, int w, int h, const std::string& label) :
-    Graph_lib::Button(xy, w, h, label, cb_openClose),
-    action()
+    Graph_lib::Button(xy, w, h, label, cb_openClose)
     {}
   ~MenuHeader();
   void openClose();
-  void attach(MenuWindow* pWnd, const std::vector<colorSpec>& btns);
+  static void cb_setFillColor(Graph_lib::Address, Graph_lib::Address pAD);
+  static void cb_setLineColor(Graph_lib::Address, Graph_lib::Address pAD);
+  void attach(MenuWindow* pWnd, const std::vector<colorSpec>& btns, Graph_lib::Callback cb);
 };
 
 class MenuWindow : public Graph_lib::Window {
@@ -64,7 +63,8 @@ class MenuWindow : public Graph_lib::Window {
 public:
     MenuWindow(Graph_lib::Point loc, int w, int h, const std::string& label);
     const static std::vector<colorSpec> fill_colors;
-    void setColor(Graph_lib::Color color);
+    void setFillColor(Graph_lib::Color color);
+    void setOutlineColor(Graph_lib::Color color);
     void menuAction(actionDescriptor* action);
 };
 
