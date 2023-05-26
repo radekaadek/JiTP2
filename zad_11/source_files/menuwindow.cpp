@@ -154,7 +154,7 @@ const std::vector<colorSpec> MenuWindow::fill_colors = {
     {"White", Graph_lib::Color::white},
     {"Cyan", Graph_lib::Color::cyan},
     {"Magenta", Graph_lib::Color::magenta},
-};
+}
 
 /**
  * @brief Set rectangle outline color
@@ -209,9 +209,11 @@ void MenuWindow::menuAction(actionDescriptor *action)
         break;
     case actionDescriptor::Menu_select_fill:
         setRectFillColor(action->selected_color);
+        action->pParent->closeMenus();
         break;
     case actionDescriptor::Menu_select_line:
         setRectOutlineColor(action->selected_color);
+        action->pParent->closeMenus();
         break;
     case actionDescriptor::NoAction:
         break;
