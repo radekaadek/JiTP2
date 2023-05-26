@@ -41,11 +41,11 @@ public:
   void hideMenu();
   void showMenu();
   void toggleOpen();
-
+  bool isExpanded() const;
 private:
+  bool expanded = false;
   std::vector<Graph_lib::Button *> btns;
   MenuWindow *pWnd = nullptr;
-  bool expanded = false;
   actionDescriptor mAction;
 };
 

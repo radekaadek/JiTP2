@@ -123,6 +123,15 @@ void MenuHeader::toggleOpen()
 }
 
 /**
+ * @brief Return true if MenuItems are visible
+ * 
+*/
+bool MenuHeader::isExpanded() const
+{
+    return expanded;
+}
+
+/**
  * @brief Create MenuWindow with MenuHeaders
  * 
  */
@@ -164,7 +173,6 @@ const std::vector<colorSpec> MenuWindow::fill_colors = {
 void MenuWindow::setRectOutlineColor(Graph_lib::Color color)
 {
     rect.set_color(color);
-    redraw();
 }
 
 /**
@@ -175,7 +183,6 @@ void MenuWindow::setRectOutlineColor(Graph_lib::Color color)
 void MenuWindow::setRectFillColor(Graph_lib::Color color)
 {
     rect.set_fill_color(color);
-    redraw();
 }
 
 /**
@@ -217,6 +224,14 @@ void MenuWindow::menuAction(actionDescriptor *action)
         break;
     case actionDescriptor::NoAction:
         break;
+    }
+    if (action->pMenu->isExpanded())
+    {
+        action->pParent->detach(rect);
+    }
+    else
+    {
+        action->pParent->attach(rect);
     }
 }
 
