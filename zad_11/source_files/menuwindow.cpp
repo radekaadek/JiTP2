@@ -8,7 +8,7 @@ void actionDescriptor::cb_action(Graph_lib::Address, Graph_lib::Address pAD)
 {
     actionDescriptor *pDsc = reinterpret_cast<actionDescriptor *>(pAD);
     pDsc->pParent->menuAction(pDsc);
-};
+}
 
 /**
  * @brief Create MenuItem. To attach see MenuItem::attach
@@ -154,7 +154,7 @@ const std::vector<colorSpec> MenuWindow::fill_colors = {
     {"White", Graph_lib::Color::white},
     {"Cyan", Graph_lib::Color::cyan},
     {"Magenta", Graph_lib::Color::magenta},
-}
+};
 
 /**
  * @brief Set rectangle outline color
