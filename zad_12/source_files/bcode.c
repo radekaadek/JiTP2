@@ -276,9 +276,9 @@ enum BarType* get_bar_types(const char* text)
     return bars;
 }
 
-void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int max_height, enum BarType bar_type)
+void draw_bar(ImageInfo* pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t max_height, enum BarType bar_type)
 {
-    unsigned int bar_height = 0;
+    uint32_t bar_height = 0;
     switch (bar_type)
     {
         case Tracker:
@@ -299,7 +299,24 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
     black_rect(pImg, x, y, width, bar_height);
 }
 
-char* validate_rm4scc(const char* text)
+void draw_msg(ImageInfo* imageinfo, uint32_t margin_bottom, uint32_t bar_width, uint32_t max_h, enum BarType* bars, unsigned long long bars_len)
+{
+    // draw start bar
+    uint32_t x = bar_width;
+    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Ascender);
+    x += 2 * bar_width;
+
+    for (uint32_t i = 0; i < bars_len * 4; ++i)
+    {
+        draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, bars[i]);
+        x += 2 * bar_width;
+    }
+
+    // draw stop bar
+    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Full_Height);
+}
+
+char* validated_rm4scc(const char* text)
 {
     size_t len = strlen(text);
     char* text_copy = malloc(len*sizeof(char) + 1);
@@ -322,14 +339,20 @@ char* validate_rm4scc(const char* text)
     return text_copy;
 }
 
-ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
+ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
 {
-    size_t len = strlen(text);
-    char* text_copy = validate_rm4scc(text);
+    char* text_copy = validated_rm4scc(text);
     if (text_copy == NULL)
         return NULL;
-    const unsigned int bar_width = width / (len + 3) / 4 / 2;
-    const unsigned int margin_bottom = height / 8;
+    
+    size_t len = strlen(text);
+    
+    // nie wiem dlaczego, ale jak dam tu mniej niz 3 
+    // to robi różne długości pasków i odstępów
+    //                                        |
+    //                                        V
+    const uint32_t bar_width = width / (len + 0.75f) / 4 / 2;
+    const uint32_t margin_bottom = height / 8;
     const uint32_t max_h = height - 2 * margin_bottom;
 
     enum BarType *bars;
@@ -340,19 +363,8 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
     
     ImageInfo *imageinfo = createImage(width, height, 1);
 
-    // draw start bar
-    unsigned int x = bar_width;
-    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Ascender);
-    x += 2 * bar_width;
+    draw_msg(imageinfo, margin_bottom, bar_width, max_h, bars, len);
 
-    for (unsigned int i = 0; i < len * 4; ++i)
-    {
-        draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, bars[i]);
-        x += 2 * bar_width;
-    }
-
-    // draw stop bar
-    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Full_Height);
     free(bars);
     return imageinfo;
 }
