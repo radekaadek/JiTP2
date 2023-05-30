@@ -257,56 +257,60 @@ enum BarType* char_to_bar(char c)
 }
 
 // This function gives 4 bars for each character
-enum BarType* get_bar_types(const char* text)
+enum BarType *get_bars(const char *text)
 {
     size_t len = strlen(text);
-    enum BarType* bars = malloc(4 * len * sizeof(enum BarType));
+    enum BarType *bars = malloc(4 * len * sizeof(enum BarType));
     for (size_t i = 0; i < len; i++)
     {
-        enum BarType* bar = char_to_bar(text[i]);
+        enum BarType *bar = char_to_bar(text[i]);
         if (bar == NULL)
         {
             free(bars);
             free(bar);
             return NULL;
         }
-        memcpy(bars + 4*i, bar, 4*sizeof(enum BarType));
+        memcpy(bars + 4 * i, bar, 4 * sizeof(enum BarType));
         free(bar);
     }
     return bars;
 }
 
-void draw_bar(ImageInfo* pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t max_height, enum BarType bar_type)
+void draw_bar(ImageInfo *pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t max_height, enum BarType bar_type)
 {
     uint32_t bar_height = 0;
     switch (bar_type)
     {
-        case Tracker:
-            bar_height = max_height / 3;
-            y += max_height / 3;
-            break;
-        case Ascender:
-            bar_height = 2*(max_height / 3);
-            y += max_height / 3;
-            break;
-        case Descender:
-            bar_height = 2*(max_height / 3);
-            break;
-        case Full_Height:
-            bar_height = max_height;
-            break;
+    case Tracker:
+        bar_height = max_height / 3;
+        y += max_height / 3;
+        break;
+    case Ascender:
+        bar_height = 2 * max_height / 3;
+        y += max_height / 3;
+        break;
+    case Descender:
+        bar_height = 2 * max_height / 3;
+        break;
+    case Full_Height:
+        bar_height = max_height;
+        break;
     }
     black_rect(pImg, x, y, width, bar_height);
 }
 
-void draw_msg(ImageInfo* imageinfo, uint32_t margin_bottom, uint32_t bar_width, uint32_t max_h, enum BarType* bars, unsigned long long bars_len)
+void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long long bars_len)
 {
+    const uint32_t bar_width = imageinfo->width / (bars_len * 2 + 5);
+    const uint32_t margin_bottom = imageinfo->height / 8;
+    const uint32_t max_h = imageinfo->height - 2 * margin_bottom;
+
     // draw start bar
     uint32_t x = bar_width;
     draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Ascender);
     x += 2 * bar_width;
 
-    for (uint32_t i = 0; i < bars_len * 4; ++i)
+    for (uint32_t i = 0; i < bars_len; ++i)
     {
         draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, bars[i]);
         x += 2 * bar_width;
@@ -316,10 +320,10 @@ void draw_msg(ImageInfo* imageinfo, uint32_t margin_bottom, uint32_t bar_width, 
     draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Full_Height);
 }
 
-char* validated_rm4scc(const char* text)
+char *validated_rm4scc(const char *text)
 {
     size_t len = strlen(text);
-    char* text_copy = malloc(len*sizeof(char) + 1);
+    char *text_copy = malloc(len * sizeof(char) + 1);
     strcpy(text_copy, text);
     // go through the string and until its null
     for (size_t i = 0; i < len; i++)
@@ -341,29 +345,20 @@ char* validated_rm4scc(const char* text)
 
 ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
 {
-    char* text_copy = validated_rm4scc(text);
+    char *text_copy = validated_rm4scc(text);
     if (text_copy == NULL)
         return NULL;
-    
-    size_t len = strlen(text);
-    
-    // nie wiem dlaczego, ale jak dam tu mniej niz 3 
-    // to robi różne długości pasków i odstępów
-    //                                         |
-    //                                         V
-    const uint32_t bar_width = width / ((len + 1) * 4 * 2);
-    const uint32_t margin_bottom = height / 8;
-    const uint32_t max_h = height - 2 * margin_bottom;
 
-    enum BarType *bars; // nie wiem jak to zrobić przy użyciu stosu
-    bars = get_bar_types(text_copy);
+    // nie wiem jak to zrobić przy użyciu stosu
+    enum BarType *bars = get_bars(text_copy);
     free(text_copy);
     if (bars == NULL)
         return NULL;
-    
-    ImageInfo *imageinfo = createImage(width, height, 1);
 
-    draw_msg(imageinfo, margin_bottom, bar_width, max_h, bars, len);
+    ImageInfo *imageinfo = createImage(width, height, 1);
+    size_t bars_len = strlen(text) * 4;
+
+    draw_msg(imageinfo, bars, bars_len);
 
     free(bars);
     return imageinfo;
