@@ -349,13 +349,13 @@ ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
     
     // nie wiem dlaczego, ale jak dam tu mniej niz 3 
     // to robi różne długości pasków i odstępów
-    //                                        |
-    //                                        V
-    const uint32_t bar_width = width / (len + 0.75f) / 4 / 2;
+    //                                         |
+    //                                         V
+    const uint32_t bar_width = width / ((len + 1) * 4 * 2);
     const uint32_t margin_bottom = height / 8;
     const uint32_t max_h = height - 2 * margin_bottom;
 
-    enum BarType *bars;
+    enum BarType *bars; // nie wiem jak to zrobić przy użyciu stosu
     bars = get_bar_types(text_copy);
     free(text_copy);
     if (bars == NULL)
