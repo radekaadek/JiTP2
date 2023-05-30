@@ -239,30 +239,89 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
     black_rect(pImg, x, y, width, bar_height);
 }
 
+// This function gives 4 bars for each character
+enum BarType* get_bar_types(const char* text)
+{
+    size_t len = strlen(text);
+    enum BarType* bars = malloc(4 * len * sizeof(enum BarType));
+    if (bars == NULL)
+        return NULL;
+    unsigned int idx = 0;
+    while (*text)
+    {
+        switch (*text)
+        {
+            case 'J':
+                bars[idx++] = Ascender;
+                bars[idx++] = Descender;
+                bars[idx++] = Tracker;
+                bars[idx++] = Full_Height;
+                break;
+            case 'I':
+                bars[idx++] = Ascender;
+                bars[idx++] = Tracker;
+                bars[idx++] = Descender;
+                bars[idx++] = Full_Height;
+                break;
+            case 'T':
+                bars[idx++] = Full_Height;
+                bars[idx++] = Descender;
+                bars[idx++] = Ascender;
+                bars[idx++] = Tracker;
+                break;
+            case 'P':
+                bars[idx++] = Ascender;
+                bars[idx++] = Descender;
+                bars[idx++] = Ascender;
+                bars[idx++] = Descender;
+                break;
+            case '2':
+                bars[idx++] = Tracker;
+                bars[idx++] = Descender;
+                bars[idx++] = Full_Height;
+                bars[idx++] = Ascender;
+                break;
+            default:
+                return NULL;
+        }
+        ++text;
+    }
+    return bars;
+}
+
 
 ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
 {
+    size_t len = strlen(text);
     ImageInfo *imageinfo = createImage(width, height, 1);
+    char *text_copy = malloc(len*sizeof(char));
+    strcpy(text_copy, text);
     // go through the string and until its null
-    char c;
-    while((c = *++text))
+    for (size_t i = 0; i < len; i++)
     {
-        if(isalpha(*text))
+        if (isalpha(text_copy[i]))
         {
-            c = toupper(c);
+            text_copy[i] = toupper(text_copy[i]);
         }
-        else if (!isdigit(*text))
+        else if (!isdigit(text_copy[i]))
         {
-            printf("Invalid character in string: %c\n", *text);
+            // print invalid character
+            printf("Invalid character in input string: %c\n", text_copy[i]);
             return NULL;
         }
     }
-    // draw_bar for debugging
+    // print text copy
+
     unsigned int bar_width = width / 64;
     unsigned int margin_bottom = height / 8;
 
     // a list of bars to draw
-    enum BarType bars[8] = {Tracker, Ascender, Descender, Full_Height, Tracker, Ascender, Descender, Full_Height};
+    // enum BarType bars[8] = {Tracker, Ascender, Descender, Full_Height, Tracker, Ascender, Descender, Full_Height};
+    // allocate memory for the bars
+    enum BarType *bars;
+    bars = get_bar_types(text_copy);
+    if (bars == NULL)
+        return NULL;
 
     // draw_bar(imageinfo, 0, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
 
@@ -270,6 +329,5 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
     {
         draw_bar(imageinfo, bar_width + 2 * i * bar_width, margin_bottom, bar_width, height - 2 * margin_bottom, bars[i]);
     }
-
     return imageinfo;
 }
