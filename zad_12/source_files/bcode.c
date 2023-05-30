@@ -329,7 +329,6 @@ char *validated_rm4scc(const char *text)
     const size_t len = strlen(text);
     char *text_copy = malloc(len * sizeof(char) + 1);
     strcpy(text_copy, text);
-    // go through the string and until its null
     for (size_t i = 0; i < len; i++)
     {
         if (isalpha(text_copy[i]))
@@ -338,7 +337,6 @@ char *validated_rm4scc(const char *text)
         }
         else if (!isdigit(text_copy[i]))
         {
-            // print invalid character
             printf("Invalid character in input string: %c\n", text_copy[i]);
             free(text_copy);
             return NULL;
