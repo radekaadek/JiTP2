@@ -222,15 +222,15 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
     switch (bar_type)
     {
         case Tracker:
-            bar_height = max_height / 4;
-            y += max_height / 4;
+            bar_height = max_height / 3;
+            y += max_height / 3;
             break;
         case Ascender:
-            bar_height = max_height / 2;
+            bar_height = 2*(max_height / 3);
+            y += max_height / 3;
             break;
         case Descender:
-            bar_height = max_height / 2;
-            y += max_height / 4;
+            bar_height = 2*(max_height / 3);
             break;
         case Full_Height:
             bar_height = max_height;
@@ -243,7 +243,7 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
 enum BarType* get_bar_types(const char* text)
 {
     size_t len = strlen(text);
-    enum BarType* bars = malloc(4 * len * sizeof(enum BarType));
+    enum BarType* bars = malloc(4 * len * sizeof(enum BarType) + 2);
     for(size_t i = 0; i < len; i++)
     {
         switch (text[i])
@@ -290,7 +290,7 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
 {
     size_t len = strlen(text);
     ImageInfo *imageinfo = createImage(width, height, 1);
-    char *text_copy = malloc(len*sizeof(char));
+    char *text_copy = malloc(len*sizeof(char) + 1);
     strcpy(text_copy, text);
     // go through the string and until its null
     for (size_t i = 0; i < len; i++)
@@ -303,11 +303,11 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
         {
             // print invalid character
             printf("Invalid character in input string: %c\n", text_copy[i]);
+            free(text_copy);
             return NULL;
         }
     }
     // print text copy
-    printf("Text copy: %s\n", text_copy);
     unsigned int bar_width = width / 64;
     unsigned int margin_bottom = height / 8;
 
@@ -316,15 +316,25 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
     // allocate memory for the bars
     enum BarType *bars;
     bars = get_bar_types(text_copy);
+    free(text_copy);
     if (bars == NULL)
         return NULL;
 
     // draw_bar(imageinfo, 0, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
 
+    // draw start bar
+    unsigned int x = bar_width;
+    draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, Ascender);
+    x += 2 * bar_width;
+
     for (unsigned int i = 0; i < len * 4; ++i)
     {
-        draw_bar(imageinfo, bar_width + 2 * i * bar_width, margin_bottom, bar_width, height - 2 * margin_bottom, bars[i]);
+        draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, bars[i]);
+        x += 2 * bar_width;
     }
+
+    // draw stop bar
+    draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
     free(bars);
     return imageinfo;
 }
