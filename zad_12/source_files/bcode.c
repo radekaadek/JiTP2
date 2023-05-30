@@ -216,21 +216,44 @@ void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int wi
 
 enum BarType* char_to_bar(char c)
 {
+    enum BarType* bar = malloc(4 * sizeof(enum BarType));
     switch(c)
     {
         case 'J':
-            return (enum BarType[4]){Ascender, Descender, Tracker, Full_Height};
+            bar[0] = Ascender;
+            bar[1] = Descender;
+            bar[2] = Tracker;
+            bar[3] = Full_Height;
+            break;
         case 'I':
-            return (enum BarType[4]){Ascender, Tracker, Descender, Full_Height};
+            bar[0] = Ascender;
+            bar[1] = Tracker;
+            bar[2] = Descender;
+            bar[3] = Full_Height;
+            break;
         case 'T':
-            return (enum BarType[4]){Full_Height, Descender, Ascender, Tracker};
+            bar[0] = Full_Height;
+            bar[1] = Descender;
+            bar[2] = Ascender;
+            bar[3] = Tracker;
+            break;
         case 'P':
-            return (enum BarType[4]){Ascender, Descender, Ascender, Descender};
+            bar[0] = Ascender;
+            bar[1] = Descender;
+            bar[2] = Ascender;
+            bar[3] = Descender;
+            break;
         case '2':
-            return (enum BarType[4]){Tracker, Descender, Full_Height, Ascender};
+            bar[0] = Tracker;
+            bar[1] = Descender;
+            bar[2] = Full_Height;
+            bar[3] = Ascender;
+            break;
         default:
+            free(bar);
             return NULL;
     }
+    return bar;
 }
 
 // This function gives 4 bars for each character
@@ -274,11 +297,10 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
     black_rect(pImg, x, y, width, bar_height);
 }
 
-ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
+char* validate_rm4scc(const char* text)
 {
     size_t len = strlen(text);
-    ImageInfo *imageinfo = createImage(width, height, 1);
-    char *text_copy = malloc(len*sizeof(char) + 1);
+    char* text_copy = malloc(len*sizeof(char) + 1);
     strcpy(text_copy, text);
     // go through the string and until its null
     for (size_t i = 0; i < len; i++)
@@ -295,6 +317,16 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
             return NULL;
         }
     }
+    return text_copy;
+}
+
+ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
+{
+    size_t len = strlen(text);
+    char* text_copy = validate_rm4scc(text);
+    if (text_copy == NULL)
+        return NULL;
+    ImageInfo *imageinfo = createImage(width, height, 1);
     const unsigned int bar_width = width / (len + 3) / 4 / 2;
     const unsigned int margin_bottom = height / 8;
     const uint32_t max_h = height - 2 * margin_bottom;
