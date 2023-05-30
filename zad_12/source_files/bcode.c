@@ -205,6 +205,10 @@ void set_pixel_black(ImageInfo* pImg, unsigned int x, unsigned int y)
 
 void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
+    // sprawdzenie czy wszystko dobrze z parametrami
+    //                   |
+    //                   v
+    // printf("black_rect: x=%d, y=%d, width=%d, height=%d\n", x, y, width, height);
     for (unsigned int row = y; row < y + height; ++row)
     {
         for (unsigned int col = x; col < x + width; ++col)
@@ -259,7 +263,7 @@ enum BarType* char_to_bar(char c)
 // This function gives 4 bars for each character
 enum BarType *get_bars(const char *text)
 {
-    size_t len = strlen(text);
+    const size_t len = strlen(text);
     enum BarType *bars = malloc(4 * len * sizeof(enum BarType));
     for (size_t i = 0; i < len; i++)
     {
@@ -322,7 +326,7 @@ void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long long bars_
 
 char *validated_rm4scc(const char *text)
 {
-    size_t len = strlen(text);
+    const size_t len = strlen(text);
     char *text_copy = malloc(len * sizeof(char) + 1);
     strcpy(text_copy, text);
     // go through the string and until its null
@@ -356,8 +360,9 @@ ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
         return NULL;
 
     ImageInfo *imageinfo = createImage(width, height, 1);
-    size_t bars_len = strlen(text) * 4;
+    const size_t bars_len = strlen(text) * 4;
 
+    // tutaj coś niedobrego się dzieje z szerokością, pomimo dobrych parametrów do black_rect()
     draw_msg(imageinfo, bars, bars_len);
 
     free(bars);
