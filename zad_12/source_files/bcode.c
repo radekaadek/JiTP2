@@ -260,16 +260,18 @@ enum BarType* char_to_bar(char c)
 enum BarType* get_bar_types(const char* text)
 {
     size_t len = strlen(text);
-    enum BarType* bars = malloc(4 * len * sizeof(enum BarType) + 1);
+    enum BarType* bars = malloc(4 * len * sizeof(enum BarType));
     for (size_t i = 0; i < len; i++)
     {
         enum BarType* bar = char_to_bar(text[i]);
         if (bar == NULL)
         {
             free(bars);
+            free(bar);
             return NULL;
         }
         memcpy(bars + 4*i, bar, 4*sizeof(enum BarType));
+        free(bar);
     }
     return bars;
 }
@@ -326,7 +328,6 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
     char* text_copy = validate_rm4scc(text);
     if (text_copy == NULL)
         return NULL;
-    ImageInfo *imageinfo = createImage(width, height, 1);
     const unsigned int bar_width = width / (len + 3) / 4 / 2;
     const unsigned int margin_bottom = height / 8;
     const uint32_t max_h = height - 2 * margin_bottom;
@@ -336,6 +337,8 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
     free(text_copy);
     if (bars == NULL)
         return NULL;
+    
+    ImageInfo *imageinfo = createImage(width, height, 1);
 
     // draw start bar
     unsigned int x = bar_width;
