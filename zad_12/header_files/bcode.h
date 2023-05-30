@@ -48,8 +48,9 @@ void showLookupTable(ImageInfo *imageinfo);
 
 void set_pixel_black(ImageInfo* pImg, unsigned int x, unsigned int y);
 void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int max_height, unsigned int width, enum BarType bar_type);
+enum BarType* char_to_bar(char c);
 enum BarType* get_bar_types(const char* text);
+void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int max_height, unsigned int width, enum BarType bar_type);
 ImageInfo* rm4scc_gen(uint32_t width, uint32_t height, const char* text);
 
 #endif // __IMAGE_H_INCLUDE__

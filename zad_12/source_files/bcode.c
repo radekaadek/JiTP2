@@ -214,7 +214,42 @@ void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int wi
     }
 }
 
-// enum BarType {Tracker, Ascender, Descender, Full_Height};
+enum BarType* char_to_bar(char c)
+{
+    switch(c)
+    {
+        case 'J':
+            return (enum BarType[4]){Ascender, Descender, Tracker, Full_Height};
+        case 'I':
+            return (enum BarType[4]){Ascender, Tracker, Descender, Full_Height};
+        case 'T':
+            return (enum BarType[4]){Full_Height, Descender, Ascender, Tracker};
+        case 'P':
+            return (enum BarType[4]){Ascender, Descender, Ascender, Descender};
+        case '2':
+            return (enum BarType[4]){Tracker, Descender, Full_Height, Ascender};
+        default:
+            return NULL;
+    }
+}
+
+// This function gives 4 bars for each character
+enum BarType* get_bar_types(const char* text)
+{
+    size_t len = strlen(text);
+    enum BarType* bars = malloc(4 * len * sizeof(enum BarType) + 1);
+    for (size_t i = 0; i < len; i++)
+    {
+        enum BarType* bar = char_to_bar(text[i]);
+        if (bar == NULL)
+        {
+            free(bars);
+            return NULL;
+        }
+        memcpy(bars + 4*i, bar, 4*sizeof(enum BarType));
+    }
+    return bars;
+}
 
 void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int max_height, enum BarType bar_type)
 {
@@ -239,53 +274,6 @@ void draw_bar(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int widt
     black_rect(pImg, x, y, width, bar_height);
 }
 
-// This function gives 4 bars for each character
-enum BarType* get_bar_types(const char* text)
-{
-    size_t len = strlen(text);
-    enum BarType* bars = malloc(4 * len * sizeof(enum BarType) + 2);
-    for(size_t i = 0; i < len; i++)
-    {
-        switch (text[i])
-        {
-            case 'J':
-                bars[4*i] = Ascender;
-                bars[4*i+1] = Descender;
-                bars[4*i+2] = Tracker;
-                bars[4*i+3] = Full_Height;
-                break;
-            case 'I':
-                bars[4*i] = Ascender;
-                bars[4*i+1] = Tracker;
-                bars[4*i+2] = Descender;
-                bars[4*i+3] = Full_Height;
-                break;
-            case 'T':
-                bars[4*i] = Full_Height;
-                bars[4*i+1] = Descender;
-                bars[4*i+2] = Ascender;
-                bars[4*i+3] = Tracker;
-                break;
-            case 'P':
-                bars[4*i] = Ascender;
-                bars[4*i+1] = Descender;
-                bars[4*i+2] = Ascender;
-                bars[4*i+3] = Descender;
-                break;
-            case '2':
-                bars[4*i] = Tracker;
-                bars[4*i+1] = Descender;
-                bars[4*i+2] = Full_Height;
-                bars[4*i+3] = Ascender;
-                break;
-            default:
-                return NULL;
-        }
-    }
-    return bars;
-}
-
-
 ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
 {
     size_t len = strlen(text);
@@ -307,34 +295,29 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
             return NULL;
         }
     }
-    // print text copy
-    unsigned int bar_width = width / 64;
-    unsigned int margin_bottom = height / 8;
+    const unsigned int bar_width = width / (len + 3) / 4 / 2;
+    const unsigned int margin_bottom = height / 8;
+    const uint32_t max_h = height - 2 * margin_bottom;
 
-    // a list of bars to draw
-    // enum BarType bars[8] = {Tracker, Ascender, Descender, Full_Height, Tracker, Ascender, Descender, Full_Height};
-    // allocate memory for the bars
     enum BarType *bars;
     bars = get_bar_types(text_copy);
     free(text_copy);
     if (bars == NULL)
         return NULL;
 
-    // draw_bar(imageinfo, 0, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
-
     // draw start bar
     unsigned int x = bar_width;
-    draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, Ascender);
+    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Ascender);
     x += 2 * bar_width;
 
     for (unsigned int i = 0; i < len * 4; ++i)
     {
-        draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, bars[i]);
+        draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, bars[i]);
         x += 2 * bar_width;
     }
 
     // draw stop bar
-    draw_bar(imageinfo, x, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
+    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Full_Height);
     free(bars);
     return imageinfo;
 }
