@@ -244,47 +244,43 @@ enum BarType* get_bar_types(const char* text)
 {
     size_t len = strlen(text);
     enum BarType* bars = malloc(4 * len * sizeof(enum BarType));
-    if (bars == NULL)
-        return NULL;
-    unsigned int idx = 0;
-    while (*text)
+    for(size_t i = 0; i < len; i++)
     {
-        switch (*text)
+        switch (text[i])
         {
             case 'J':
-                bars[idx++] = Ascender;
-                bars[idx++] = Descender;
-                bars[idx++] = Tracker;
-                bars[idx++] = Full_Height;
+                bars[4*i] = Ascender;
+                bars[4*i+1] = Descender;
+                bars[4*i+2] = Tracker;
+                bars[4*i+3] = Full_Height;
                 break;
             case 'I':
-                bars[idx++] = Ascender;
-                bars[idx++] = Tracker;
-                bars[idx++] = Descender;
-                bars[idx++] = Full_Height;
+                bars[4*i] = Ascender;
+                bars[4*i+1] = Tracker;
+                bars[4*i+2] = Descender;
+                bars[4*i+3] = Full_Height;
                 break;
             case 'T':
-                bars[idx++] = Full_Height;
-                bars[idx++] = Descender;
-                bars[idx++] = Ascender;
-                bars[idx++] = Tracker;
+                bars[4*i] = Full_Height;
+                bars[4*i+1] = Descender;
+                bars[4*i+2] = Ascender;
+                bars[4*i+3] = Tracker;
                 break;
             case 'P':
-                bars[idx++] = Ascender;
-                bars[idx++] = Descender;
-                bars[idx++] = Ascender;
-                bars[idx++] = Descender;
+                bars[4*i] = Ascender;
+                bars[4*i+1] = Descender;
+                bars[4*i+2] = Ascender;
+                bars[4*i+3] = Descender;
                 break;
             case '2':
-                bars[idx++] = Tracker;
-                bars[idx++] = Descender;
-                bars[idx++] = Full_Height;
-                bars[idx++] = Ascender;
+                bars[4*i] = Tracker;
+                bars[4*i+1] = Descender;
+                bars[4*i+2] = Full_Height;
+                bars[4*i+3] = Ascender;
                 break;
             default:
                 return NULL;
         }
-        ++text;
     }
     return bars;
 }
@@ -311,7 +307,7 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
         }
     }
     // print text copy
-
+    printf("Text copy: %s\n", text_copy);
     unsigned int bar_width = width / 64;
     unsigned int margin_bottom = height / 8;
 
@@ -325,9 +321,10 @@ ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text)
 
     // draw_bar(imageinfo, 0, margin_bottom, bar_width, height - 2 * margin_bottom, Full_Height);
 
-    for (unsigned int i = 0; i < 8; ++i)
+    for (unsigned int i = 0; i < len * 4; ++i)
     {
         draw_bar(imageinfo, bar_width + 2 * i * bar_width, margin_bottom, bar_width, height - 2 * margin_bottom, bars[i]);
     }
+    free(bars);
     return imageinfo;
 }
