@@ -218,42 +218,42 @@ void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int wi
     }
 }
 
-void char_to_bar(char c, enum BarType* bar)
+void char_to_bar(char c, enum BarType* bar_dest)
 {
     switch(c)
     {
         case 'J':
-            bar[0] = Ascender;
-            bar[1] = Descender;
-            bar[2] = Tracker;
-            bar[3] = Full_Height;
+            bar_dest[0] = Ascender;
+            bar_dest[1] = Descender;
+            bar_dest[2] = Tracker;
+            bar_dest[3] = Full_Height;
             break;
         case 'I':
-            bar[0] = Ascender;
-            bar[1] = Tracker;
-            bar[2] = Descender;
-            bar[3] = Full_Height;
+            bar_dest[0] = Ascender;
+            bar_dest[1] = Tracker;
+            bar_dest[2] = Descender;
+            bar_dest[3] = Full_Height;
             break;
         case 'T':
-            bar[0] = Full_Height;
-            bar[1] = Descender;
-            bar[2] = Ascender;
-            bar[3] = Tracker;
+            bar_dest[0] = Full_Height;
+            bar_dest[1] = Descender;
+            bar_dest[2] = Ascender;
+            bar_dest[3] = Tracker;
             break;
         case 'P':
-            bar[0] = Ascender;
-            bar[1] = Descender;
-            bar[2] = Ascender;
-            bar[3] = Descender;
+            bar_dest[0] = Ascender;
+            bar_dest[1] = Descender;
+            bar_dest[2] = Ascender;
+            bar_dest[3] = Descender;
             break;
         case '2':
-            bar[0] = Tracker;
-            bar[1] = Descender;
-            bar[2] = Full_Height;
-            bar[3] = Ascender;
+            bar_dest[0] = Tracker;
+            bar_dest[1] = Descender;
+            bar_dest[2] = Full_Height;
+            bar_dest[3] = Ascender;
             break;
         default:
-            bar = NULL;
+            bar_dest = NULL;
     }
 }
 
