@@ -218,9 +218,8 @@ void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int wi
     }
 }
 
-enum BarType* char_to_bar(char c)
+void char_to_bar(char c, enum BarType* bar)
 {
-    enum BarType* bar = malloc(4 * sizeof(enum BarType));
     switch(c)
     {
         case 'J':
@@ -254,10 +253,8 @@ enum BarType* char_to_bar(char c)
             bar[3] = Ascender;
             break;
         default:
-            free(bar);
-            return NULL;
+            bar = NULL;
     }
-    return bar;
 }
 
 // This function gives 4 bars for each character
@@ -265,17 +262,16 @@ enum BarType *get_bars(const char *text)
 {
     const size_t len = strlen(text);
     enum BarType *bars = malloc(4 * len * sizeof(enum BarType));
+    enum BarType *curr_bar = bars;
     for (size_t i = 0; i < len; i++)
     {
-        enum BarType *bar = char_to_bar(text[i]);
-        if (bar == NULL)
+        curr_bar += sizeof(enum BarType) * 4;
+        char_to_bar(text[i], bars + 4 * i);
+        if (curr_bar == NULL)
         {
             free(bars);
-            free(bar);
             return NULL;
         }
-        memcpy(bars + 4 * i, bar, 4 * sizeof(enum BarType));
-        free(bar);
     }
     return bars;
 }
@@ -351,7 +347,6 @@ ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
     if (text_copy == NULL)
         return NULL;
 
-    // nie wiem jak to zrobić przy użyciu stosu
     enum BarType *bars = get_bars(text_copy);
     free(text_copy);
     if (bars == NULL)

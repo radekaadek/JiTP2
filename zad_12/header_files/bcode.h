@@ -54,7 +54,7 @@ void showLookupTable(ImageInfo *imageinfo);
 
 void set_pixel_black(ImageInfo *pImg, unsigned int x, unsigned int y);
 void black_rect(ImageInfo *pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-enum BarType *char_to_bar(char c);
+void char_to_bar(char c, enum BarType* bar);
 enum BarType *get_bars(const char *text);
 void draw_bar(ImageInfo *pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t max_height, enum BarType bar_type);
 void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long long bars_len);
