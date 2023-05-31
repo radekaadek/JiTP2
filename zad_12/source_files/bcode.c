@@ -264,10 +264,8 @@ enum BarType *get_bars(const char *text)
 {
     const size_t len = strlen(text);
     enum BarType *bars = malloc(4 * len * sizeof(enum BarType));
-    enum BarType *curr_bar = bars;
     for (size_t i = 0; i < len; i++)
     {
-        curr_bar += sizeof(enum BarType) * 4;
         enum BarType *check = char_to_bar(text[i], bars + 4 * i);
         if (check == NULL)
         {
