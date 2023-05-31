@@ -196,19 +196,19 @@ void showLookupTable(ImageInfo *imageinfo)
     }
 }
 
-void set_pixel_black(ImageInfo* pImg, unsigned int x, unsigned int y)
+void set_pixel_black(ImageInfo *pImg, unsigned int x, unsigned int y)
 {
-    unsigned char *pPix = pImg->pImg + y * pImg->line_bytes + x / 8;
-    unsigned char mask = 0x80 << (x % 8);
-    *pPix &= -mask;
+    if (x >= pImg->width || y >= pImg->height)
+        return;
+    unsigned pixels_per_byte = 8 / pImg->bitsperpel;
+    unsigned int byte_idx = y * pImg->line_bytes + x / pixels_per_byte;
+    unsigned int bit_idx = x % pixels_per_byte;
+    unsigned char *pByte = pImg->pImg + byte_idx;
+    *pByte &= ~(0x80 >> bit_idx);
 }
 
 void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 {
-    // sprawdzenie czy wszystko dobrze z parametrami
-    //                   |
-    //                   v
-    // printf("black_rect: x=%d, y=%d, width=%d, height=%d\n", x, y, width, height);
     for (unsigned int row = y; row < y + height; ++row)
     {
         for (unsigned int col = x; col < x + width; ++col)
@@ -355,7 +355,6 @@ ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
     ImageInfo *imageinfo = createImage(width, height, 1);
     const size_t bars_len = strlen(text) * 4;
 
-    // tutaj coś niedobrego się dzieje z szerokością, pomimo dobrych parametrów do black_rect()
     draw_msg(imageinfo, bars, bars_len);
 
     free(bars);
