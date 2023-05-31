@@ -218,7 +218,7 @@ void black_rect(ImageInfo* pImg, unsigned int x, unsigned int y, unsigned int wi
     }
 }
 
-void char_to_bar(char c, enum BarType* bar_dest)
+enum BarType *char_to_bar(char c, enum BarType* bar_dest)
 {
     switch(c)
     {
@@ -254,7 +254,9 @@ void char_to_bar(char c, enum BarType* bar_dest)
             break;
         default:
             bar_dest = NULL;
+            return bar_dest;
     }
+    return bar_dest;
 }
 
 // This function gives 4 bars for each character
@@ -266,8 +268,8 @@ enum BarType *get_bars(const char *text)
     for (size_t i = 0; i < len; i++)
     {
         curr_bar += sizeof(enum BarType) * 4;
-        char_to_bar(text[i], bars + 4 * i);
-        if (curr_bar == NULL)
+        enum BarType *check = char_to_bar(text[i], bars + 4 * i);
+        if (check == NULL)
         {
             free(bars);
             return NULL;
