@@ -352,7 +352,6 @@ uint32_t top_bar_checksum(enum BarType *bars)
         if (bars[i] == Full_Height || bars[i] == Ascender)
             checksum += weights[i];
     }
-    printf("Top half value: %d\n", checksum);
     return checksum;
 }
 
@@ -365,7 +364,6 @@ uint32_t bottom_bar_checksum(enum BarType *bars)
         if (bars[i] == Full_Height || bars[i] == Descender)
             checksum += weights[i];
     }
-    printf("Bottom half value: %d\n", checksum);
     return checksum;
 }
 
