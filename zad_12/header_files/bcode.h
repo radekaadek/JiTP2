@@ -57,7 +57,8 @@ void black_rect(ImageInfo *pImg, unsigned int x, unsigned int y, unsigned int wi
 enum BarType *char_to_bar(char c, enum BarType* bar_dest);
 enum BarType *get_bars(const char *text);
 void draw_bar(ImageInfo *pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t max_height, enum BarType bar_type);
-void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long long bars_len);
+enum BarType *checksum(enum BarType *bars, unsigned long bars_len);
+void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long bars_len);
 char *validated_rm4scc(const char *text);
 ImageInfo *rm4scc_gen(uint32_t width, uint32_t height, const char *text);
 

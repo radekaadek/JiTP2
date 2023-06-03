@@ -252,6 +252,30 @@ enum BarType *char_to_bar(char c, enum BarType* bar_dest)
             bar_dest[2] = Full_Height;
             bar_dest[3] = Ascender;
             break;
+        case 'B':
+            bar_dest[0] = Descender;
+            bar_dest[1] = Full_Height;
+            bar_dest[2] = Tracker;
+            bar_dest[3] = Ascender;
+            break;
+        case 'X':
+            bar_dest[0] = Full_Height;
+            bar_dest[1] = Ascender;
+            bar_dest[2] = Tracker;
+            bar_dest[3] = Descender;
+            break;
+        case '1':
+            bar_dest[0] = Tracker;
+            bar_dest[1] = Descender;
+            bar_dest[2] = Ascender;
+            bar_dest[3] = Full_Height;
+            break;
+        case 'L':
+            bar_dest[0] = Full_Height;
+            bar_dest[1] = Tracker;
+            bar_dest[2] = Tracker;
+            bar_dest[3] = Full_Height;
+            break;
         default:
             bar_dest = NULL;
             return bar_dest;
@@ -299,25 +323,41 @@ void draw_bar(ImageInfo *pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t 
     black_rect(pImg, x, y, width, bar_height);
 }
 
-void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long long bars_len)
+static const uint32_t weights[] = {4, 2, 1, 0};
+
+// takes an array of 4 bars and returns the top checksum
+uint32_t top_bar_checksum(enum BarType *bars)
 {
-    const uint32_t bar_width = imageinfo->width / (bars_len * 2 + 5);
-    const uint32_t margin_bottom = imageinfo->height / 8;
-    const uint32_t max_h = imageinfo->height - 2 * margin_bottom;
+    uint32_t checksum = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        printf("bar: %d\n", bars[i]);
+        if (bars[i] == Full_Height || bars[i] == Ascender)
+            checksum += weights[i];
+    }
+    return checksum;
+}
+
+void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long bars_len)
+{
+    const uint32_t col_padding = 5;
+    const uint32_t bar_width = imageinfo->width / (bars_len * 2 + col_padding);
+    const uint32_t margin_size = imageinfo->height / 8;
+    const uint32_t max_h = imageinfo->height - 2 * margin_size;
 
     // draw start bar
     uint32_t x = bar_width;
-    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Ascender);
+    draw_bar(imageinfo, x, margin_size, bar_width, max_h, Ascender);
     x += 2 * bar_width;
 
     for (uint32_t i = 0; i < bars_len; ++i)
     {
-        draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, bars[i]);
+        draw_bar(imageinfo, x, margin_size, bar_width, max_h, bars[i]);
         x += 2 * bar_width;
     }
 
     // draw stop bar
-    draw_bar(imageinfo, x, margin_bottom, bar_width, max_h, Full_Height);
+    draw_bar(imageinfo, x, margin_size, bar_width, max_h, Full_Height);
 }
 
 char *validated_rm4scc(const char *text)
@@ -325,7 +365,7 @@ char *validated_rm4scc(const char *text)
     const size_t len = strlen(text);
     char *text_copy = malloc(len * sizeof(char) + 1);
     strcpy(text_copy, text);
-    for (size_t i = 0; i < len; i++)
+    for (size_t i = 0; i < len; ++i)
     {
         if (isalpha(text_copy[i]))
         {
@@ -360,3 +400,24 @@ ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
     free(bars);
     return imageinfo;
 }
+
+/*
+RM4SCC (Royal Mail 4-State Customer Code[1] is the name of the barcode character set based on the Royal Mail 4-State Bar Code symbology created by Royal Mail. The RM4SCC is used for the Royal Mail Cleanmail service. It enables UK postcodes as well as Delivery Point Suffixes (DPSs) to be easily read by a machine at high speed.
+
+This barcode is known as CBC (Customer Bar Code) within Royal Mail.
+
+PostNL uses a slightly modified version called KIX which stands for Klant index (Customer index); it differs from CBC in that it doesn't use the start and end symbols or the checksum, separates the house number and suffixes with an X, and is placed below the address.[2] Singapore Post uses RM4SCC without alteration.[3]
+
+There are strict guidelines governing usage of these barcodes, which allow for maximum readability by machines.
+
+They can be used with Royal Mail's Cleanmail system, as an alternative to OCR readable fonts, to allow businesses to easily and cheaply send large quantities of letters.
+
+Encoding and content
+
+Table showing the symbols used for Cleanmail.
+
+The example postcode above decoded.
+An individual bar can be short, extend upwards, extend downwards, or extend both up and down. These four possibilities are reflected in the "four-state" name of the encoding. Each character is then made up of four of these bars. There are 36 possible combinations like this, and so 36 symbols: 0 to 9 and 26 letters. In addition, single-bar start and stop characters are defined.
+
+As the example shows, the complete barcode consists of a start character, the postcode, the Delivery Point Suffix (DPS), a checksum character, and a stop character. The DPS is a two-character code ranging from 1A to 9T, with codes 9U to 9Z being accepted as default codes when no DPS has been allocated.[4] The DPS can be found in Royal Mail's Postcode Address File.
+*/
