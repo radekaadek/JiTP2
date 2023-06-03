@@ -276,6 +276,24 @@ enum BarType *char_to_bar(char c, enum BarType* bar_dest)
             bar_dest[2] = Tracker;
             bar_dest[3] = Full_Height;
             break;
+        case 'A':
+            bar_dest[0] = Descender;
+            bar_dest[1] = Ascender;
+            bar_dest[2] = Descender;
+            bar_dest[3] = Ascender;
+            break;
+        case '9':
+            bar_dest[0] = Descender;
+            bar_dest[1] = Ascender;
+            bar_dest[2] = Tracker;
+            bar_dest[3] = Full_Height;
+            break;
+        case 'U':
+            bar_dest[0] = Ascender;
+            bar_dest[1] = Ascender;
+            bar_dest[2] = Descender;
+            bar_dest[3] = Descender;
+            break;
         default:
             bar_dest = NULL;
             return bar_dest;
@@ -323,24 +341,67 @@ void draw_bar(ImageInfo *pImg, uint32_t x, uint32_t y, uint32_t width, uint32_t 
     black_rect(pImg, x, y, width, bar_height);
 }
 
-static const uint32_t weights[] = {4, 2, 1, 0};
+static const uint32_t weights[] = { 4, 2, 1, 0 };
 
 // takes an array of 4 bars and returns the top checksum
 uint32_t top_bar_checksum(enum BarType *bars)
 {
     uint32_t checksum = 0;
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
-        printf("bar: %d\n", bars[i]);
         if (bars[i] == Full_Height || bars[i] == Ascender)
             checksum += weights[i];
     }
+    printf("Top half value: %d\n", checksum);
     return checksum;
 }
 
+// takes an array of 4 bars and returns the bottom checksum
+uint32_t bottom_bar_checksum(enum BarType *bars)
+{
+    uint32_t checksum = 0;
+    for (size_t i = 0; i < 4; i++)
+    {
+        if (bars[i] == Full_Height || bars[i] == Descender)
+            checksum += weights[i];
+    }
+    printf("Bottom half value: %d\n", checksum);
+    return checksum;
+}
+
+// takes an array of n * 4 bars and returns the bottom checksum
+uint32_t top_bar_summed(enum BarType *bars, unsigned long bars_len)
+{
+    uint32_t checksum = 0;
+    for (size_t i = 0; i < bars_len; i+=4)
+    {
+        checksum += top_bar_checksum(bars + i);
+    }
+    return checksum % 6;
+}
+
+// takes an array of n * 4 bars and returns the bottom checksum
+uint32_t bottom_bar_summed(enum BarType *bars, unsigned long bars_len)
+{
+    uint32_t checksum = 0;
+    for (size_t i = 0; i < bars_len; i+=4)
+    {
+        checksum += bottom_bar_checksum(bars + i);
+    }
+    return checksum % 6;
+}
+
+static const uint32_t extensions[] = { 0xC, 0x3, 0x5, 0x6, 0x9, 0xA };
+
+uint32_t code_to_ext(uint32_t code)
+{
+    return extensions[code];
+}
+
+
 void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long bars_len)
 {
-    const uint32_t col_padding = 5;
+    const uint32_t col_padding = 3 + 8 + 2;
     const uint32_t bar_width = imageinfo->width / (bars_len * 2 + col_padding);
     const uint32_t margin_size = imageinfo->height / 8;
     const uint32_t max_h = imageinfo->height - 2 * margin_size;
@@ -356,15 +417,42 @@ void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long bars_len)
         x += 2 * bar_width;
     }
 
+    // draw top checksum
+    uint32_t top_ext = code_to_ext(top_bar_summed(bars, bars_len));
+    uint32_t bot_ext = code_to_ext(bottom_bar_summed(bars, bars_len));
+
+    // iterate over bits of top checksum
+    for (uint32_t i = 0; i < 4; ++i)
+    {
+        if (top_ext & (1 << (3 - i)))
+        {
+            if(bot_ext & (1 << (3 - i)))
+                draw_bar(imageinfo, x, margin_size, bar_width, max_h, Full_Height);
+            else
+                draw_bar(imageinfo, x, margin_size, bar_width, max_h, Ascender);
+        }
+        else
+        {
+            if(bot_ext & (1 << (3 - i)))
+                draw_bar(imageinfo, x, margin_size, bar_width, max_h, Descender);
+            else
+                draw_bar(imageinfo, x, margin_size, bar_width, max_h, Tracker);
+        }
+        x += 2 * bar_width;
+    }
+
     // draw stop bar
     draw_bar(imageinfo, x, margin_size, bar_width, max_h, Full_Height);
 }
 
 char *validated_rm4scc(const char *text)
 {
-    const size_t len = strlen(text);
+    const size_t len = strlen(text) + 2;
     char *text_copy = malloc(len * sizeof(char) + 1);
+    // validate input and append '1A' to the end
     strcpy(text_copy, text);
+    strcat(text_copy, "9U");
+    
     for (size_t i = 0; i < len; ++i)
     {
         if (isalpha(text_copy[i]))
@@ -383,41 +471,38 @@ char *validated_rm4scc(const char *text)
 
 ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
 {
+    /*
+        Przy pisaniu kodu na początku nie wiedziałem, zę jest
+        specjalny pattern tych symboli tak jak jest to w
+        tabelce poniżej więc implementowałem znaki po kolei ręcznie :(
+
+                RM4SCC bar code symbols
+        Top	Bottom (1=long bar, 0=short)
+        0011	0101	0110	1001	1010	1100
+                    1	2	3	4	5	0
+        0011	1	0	1	2	3	4	5
+        0101	2	6	7	8	9	A	B
+        0110	3	C	D	E	F	G	H
+        1001	4	I	J	K	L	M	N
+        1010	5	O	P	Q	R	S	T
+        1100	0	U	V	W	X	Y	Z
+    */
     char *text_copy = validated_rm4scc(text);
     if (text_copy == NULL)
         return NULL;
 
     enum BarType *bars = get_bars(text_copy);
-    free(text_copy);
-    if (bars == NULL)
+    if (bars == NULL) {
+        free(text_copy);
         return NULL;
+    }
 
     ImageInfo *imageinfo = createImage(width, height, 1);
-    const size_t bars_len = strlen(text) * 4;
+    const size_t bars_len = strlen(text_copy) * 4;
+    free(text_copy);
 
     draw_msg(imageinfo, bars, bars_len);
 
     free(bars);
     return imageinfo;
 }
-
-/*
-RM4SCC (Royal Mail 4-State Customer Code[1] is the name of the barcode character set based on the Royal Mail 4-State Bar Code symbology created by Royal Mail. The RM4SCC is used for the Royal Mail Cleanmail service. It enables UK postcodes as well as Delivery Point Suffixes (DPSs) to be easily read by a machine at high speed.
-
-This barcode is known as CBC (Customer Bar Code) within Royal Mail.
-
-PostNL uses a slightly modified version called KIX which stands for Klant index (Customer index); it differs from CBC in that it doesn't use the start and end symbols or the checksum, separates the house number and suffixes with an X, and is placed below the address.[2] Singapore Post uses RM4SCC without alteration.[3]
-
-There are strict guidelines governing usage of these barcodes, which allow for maximum readability by machines.
-
-They can be used with Royal Mail's Cleanmail system, as an alternative to OCR readable fonts, to allow businesses to easily and cheaply send large quantities of letters.
-
-Encoding and content
-
-Table showing the symbols used for Cleanmail.
-
-The example postcode above decoded.
-An individual bar can be short, extend upwards, extend downwards, or extend both up and down. These four possibilities are reflected in the "four-state" name of the encoding. Each character is then made up of four of these bars. There are 36 possible combinations like this, and so 36 symbols: 0 to 9 and 26 letters. In addition, single-bar start and stop characters are defined.
-
-As the example shows, the complete barcode consists of a start character, the postcode, the Delivery Point Suffix (DPS), a checksum character, and a stop character. The DPS is a two-character code ranging from 1A to 9T, with codes 9U to 9Z being accepted as default codes when no DPS has been allocated.[4] The DPS can be found in Royal Mail's Postcode Address File.
-*/
