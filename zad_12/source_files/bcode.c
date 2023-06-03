@@ -369,7 +369,7 @@ uint32_t bottom_bar_checksum(enum BarType *bars)
     return checksum;
 }
 
-// takes an array of n * 4 bars and returns the bottom checksum
+// takes an array of 4 * n bars and returns the top checksum
 uint32_t top_bar_summed(enum BarType *bars, unsigned long bars_len)
 {
     uint32_t checksum = 0;
@@ -380,7 +380,7 @@ uint32_t top_bar_summed(enum BarType *bars, unsigned long bars_len)
     return checksum % 6;
 }
 
-// takes an array of n * 4 bars and returns the bottom checksum
+// takes an array of 4 * n bars and returns the bottom checksum
 uint32_t bottom_bar_summed(enum BarType *bars, unsigned long bars_len)
 {
     uint32_t checksum = 0;
