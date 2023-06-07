@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ImageInfo *pImg = rm4scc_gen(1024, 128, "BX11LT");
+    ImageInfo *pImg = rm4scc_gen(1024, 128, "PITJ2");
     if (pImg == NULL)
     {
         printf("Invalid string for RM4SCC encoding\n");

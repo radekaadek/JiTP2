@@ -445,11 +445,10 @@ void draw_msg(ImageInfo *imageinfo, enum BarType *bars, unsigned long bars_len)
 
 char *validated_rm4scc(const char *text)
 {
-    const size_t len = strlen(text) + 2;
+    const size_t len = strlen(text);
     char *text_copy = malloc(len * sizeof(char) + 1);
     // validate input and append '1A' to the end
     strcpy(text_copy, text);
-    strcat(text_copy, "9U");
     
     for (size_t i = 0; i < len; ++i)
     {
@@ -470,7 +469,7 @@ char *validated_rm4scc(const char *text)
 ImageInfo *rm4scc_gen(unsigned int width, unsigned int height, const char *text)
 {
     /*
-        Przy pisaniu kodu na początku nie wiedziałem, zę jest
+        Przy pisaniu kodu na początku nie wiedziałem, że jest
         specjalny pattern tych symboli tak jak jest to w
         tabelce poniżej więc implementowałem znaki po kolei ręcznie :(
 
